@@ -15,6 +15,14 @@ class Step0RealDataTests(unittest.TestCase):
         self.assertEqual(box_size("A", 0), (1400, 1000, 800))
         self.assertEqual(box_size("A", 90), (1000, 1400, 800))
 
+    def test_orientation_invalid_yaw_ng(self) -> None:
+        with self.assertRaises(ValueError):
+            box_size("A", 45)
+
+    def test_unknown_box_type_ng(self) -> None:
+        with self.assertRaises(ValueError):
+            box_size("Z", 0)
+
     def test_inside_container_boundary_ok_with_90deg_rotation(self) -> None:
         # A box at exact max boundary with 90deg orientation should still be valid.
         box = place_box("A", x=5898 - 1000, y=2352 - 1400, z=2393 - 800, yaw_deg=90)
@@ -52,4 +60,3 @@ class Step0RealDataTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
