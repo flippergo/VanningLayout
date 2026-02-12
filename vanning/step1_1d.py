@@ -1,16 +1,16 @@
-"""Step 1-1: destination-aware 1D bin packing helpers."""
+"""Step 1-1: 行先混載禁止付きの 1D ビンパッキング。"""
 
 from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
 class Item1D:
-    """1D packing item.
+    """1次元パッキング対象の荷物。
 
-    Attributes:
-        item_id: unique identifier.
-        length: required length [mm]. Must be positive.
-        dest: destination label (e.g. "X" or "Y").
+    属性:
+        item_id: 荷物ID。
+        length: 占有長さ[mm]。正の値のみ許可。
+        dest: 行先ラベル（例: "X", "Y"）。
     """
 
     item_id: str
@@ -20,7 +20,10 @@ class Item1D:
 
 @dataclass
 class Bin1D:
-    """A single 1D container bin for one destination only."""
+    """1D コンテナ（1行先専用）。
+
+    1つの Bin には同一行先の荷物のみを載せる。
+    """
 
     capacity: float
     dest: str
@@ -29,12 +32,15 @@ class Bin1D:
 
     @property
     def remaining_length(self) -> float:
+        """残り長さ[mm]を返す。"""
         return self.capacity - self.used_length
 
     def can_fit(self, item: Item1D) -> bool:
+        """荷物がこの Bin に入るか判定する。"""
         return item.dest == self.dest and item.length <= self.remaining_length
 
     def add(self, item: Item1D) -> None:
+        """荷物を Bin に追加する。追加不可なら例外を送出する。"""
         if not self.can_fit(item):
             raise ValueError("item cannot be packed into this bin")
         self.items.append(item)
@@ -43,27 +49,30 @@ class Bin1D:
 
 @dataclass(frozen=True)
 class PackingSummary:
-    """Result summary for destination-aware 1D packing."""
+    """1D パッキング結果の要約。"""
 
     bins: list[Bin1D]
 
     @property
     def bin_count(self) -> int:
+        """使用 Bin 数を返す。"""
         return len(self.bins)
 
     @property
     def total_unused_length(self) -> float:
+        """全 Bin の未使用長さ合計[mm]を返す。"""
         return sum(bin_.remaining_length for bin_ in self.bins)
 
 
 def pack_1d_by_destination_ffd(items: list[Item1D], bin_capacity: float) -> PackingSummary:
-    """Pack 1D items using First-Fit Decreasing per destination.
+    """First-Fit Decreasing で 1D パッキングを実行する。
 
-    Constraints:
-      - A bin can contain only one destination.
-      - Item length must be <= bin_capacity.
+    仕様:
+      - 1つの Bin に複数行先を混載しない。
+      - 各荷物は bin_capacity 以下でなければならない。
 
-    This is a heuristic (not guaranteed globally optimal).
+    注意:
+      - 近似解法であり、常に大域最適を保証するものではない。
     """
     if bin_capacity <= 0:
         raise ValueError("bin_capacity must be positive")
@@ -78,7 +87,7 @@ def pack_1d_by_destination_ffd(items: list[Item1D], bin_capacity: float) -> Pack
 
     bins: list[Bin1D] = []
 
-    # Sort by destination first (for deterministic grouping), then by descending length.
+    # 再現性のため、行先→長さ降順→ID の順で並べる。
     ordered = sorted(items, key=lambda i: (i.dest, -i.length, i.item_id))
 
     for item in ordered:
