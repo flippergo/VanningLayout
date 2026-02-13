@@ -65,14 +65,17 @@ class _FreeRect:
 
     @property
     def x_max(self) -> float:
+        """x方向の終端座標。"""
         return self.x + self.length
 
     @property
     def y_max(self) -> float:
+        """y方向の終端座標。"""
         return self.y + self.width
 
     @property
     def area(self) -> float:
+        """空き領域の面積[mm^2]。"""
         return self.length * self.width
 
 

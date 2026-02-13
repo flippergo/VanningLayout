@@ -4,6 +4,7 @@ from vanning.step1_2d import Item2D, pack_2d_by_destination_ffd
 
 
 def _placements_overlap(a, b) -> bool:
+    """2つの配置矩形が内部で重なるかを判定する。"""
     return a.x < b.x_max and a.x_max > b.x and a.y < b.y_max and a.y_max > b.y
 
 
