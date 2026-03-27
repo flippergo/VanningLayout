@@ -65,6 +65,10 @@ class Bin3D:
     def add(self, item: Item3D) -> bool:
         if item.dest != self.dest:
             return False
+        if item.length <= 0 or item.width <= 0 or item.height <= 0:
+            return False
+        if not item.dest:
+            return False
 
         placement = self._find_best_placement(item)
         if placement is None:
@@ -92,9 +96,9 @@ class Bin3D:
                     continue
 
                 score = (
-                    candidate.z,
                     candidate.y,
                     candidate.x,
+                    candidate.z,
                     self.container.h - candidate.box.z_max,
                     1 if candidate.rotated else 0,
                 )

@@ -95,6 +95,23 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
         bin_ = Bin3D(container=CONTAINER_20FT, dest="X")
         self.assertFalse(bin_.add(Item3D("Y1", length=1000, width=800, height=600, dest="Y")))
 
+    def test_bin_add_rejects_non_positive_dimensions(self) -> None:
+        bin_ = Bin3D(container=CONTAINER_20FT, dest="X")
+        self.assertFalse(bin_.add(Item3D("ZERO", length=0, width=800, height=600, dest="X")))
+        self.assertFalse(bin_.add(Item3D("NEG", length=1000, width=800, height=-1, dest="X")))
+
+    def test_packing_prefers_single_bin_when_stacking_avoids_extra_bin(self) -> None:
+        container = type(CONTAINER_20FT)(l=3, w=3, h=2)
+        items = [
+            Item3D("A", length=1, width=1, height=2, dest="X", allow_rotate=False),
+            Item3D("B", length=3, width=1, height=1, dest="X", allow_rotate=False),
+            Item3D("C", length=3, width=2, height=1, dest="X", allow_rotate=False),
+        ]
+
+        summary = pack_3d_by_destination_ffd(items, container)
+
+        self.assertEqual(summary.bin_count, 1)
+
     def test_realdata_3d_packing_is_valid(self) -> None:
         items = build_step2_3d_realdata_items()
         summary = pack_3d_by_destination_ffd(items, CONTAINER_20FT)
