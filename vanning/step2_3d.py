@@ -63,6 +63,9 @@ class Bin3D:
         return self.container.l * self.container.w * self.container.h - self.used_volume
 
     def add(self, item: Item3D) -> bool:
+        if item.dest != self.dest:
+            return False
+
         placement = self._find_best_placement(item)
         if placement is None:
             return False
@@ -133,9 +136,12 @@ class Bin3D:
         for existing in self.placements:
             if existing.box.z_max != placement.z:
                 continue
-            x_overlap = _strict_overlap_len(existing.x, existing.box.x_max, placement.x, placement.box.x_max)
-            y_overlap = _strict_overlap_len(existing.y, existing.box.y_max, placement.y, placement.box.y_max)
-            if x_overlap > 0 and y_overlap > 0:
+            if (
+                existing.x <= placement.x
+                and placement.box.x_max <= existing.box.x_max
+                and existing.y <= placement.y
+                and placement.box.y_max <= existing.box.y_max
+            ):
                 return True
 
         return False

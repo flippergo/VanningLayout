@@ -2,7 +2,7 @@ import unittest
 
 from vanning.geometry import boxes_collide
 from vanning.problem_spec import CONTAINER_20FT, build_step2_3d_realdata_items
-from vanning.step2_3d import Item3D, pack_3d_by_destination_ffd
+from vanning.step2_3d import Bin3D, Item3D, pack_3d_by_destination_ffd
 
 
 class Step2ThreeDimensionalPackingTests(unittest.TestCase):
@@ -54,16 +54,46 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
         for p in placements:
             if p.z == 0:
                 continue
-            supported = False
-            for other in placements:
-                if other is p or other.box.z_max != p.z:
-                    continue
-                x_overlap = min(other.box.x_max, p.box.x_max) - max(other.x, p.x)
-                y_overlap = min(other.box.y_max, p.box.y_max) - max(other.y, p.y)
-                if x_overlap > 0 and y_overlap > 0:
-                    supported = True
-                    break
-            self.assertTrue(supported, msg=f"{p.item.item_id} at z={p.z} is unsupported")
+            supporters = [
+                other
+                for other in placements
+                if other is not p
+                and other.box.z_max == p.z
+                and other.x <= p.x
+                and p.box.x_max <= other.box.x_max
+                and other.y <= p.y
+                and p.box.y_max <= other.box.y_max
+            ]
+            self.assertTrue(supporters, msg=f"{p.item.item_id} at z={p.z} is unsupported")
+
+    def test_rejects_bridging_across_two_support_boxes(self) -> None:
+        bridge_container = type(CONTAINER_20FT)(l=1200, w=900, h=1500)
+        bin_ = Bin3D(container=bridge_container, dest="X")
+
+        self.assertTrue(bin_.add(Item3D("L", length=600, width=900, height=700, dest="X", allow_rotate=False)))
+        self.assertTrue(bin_.add(Item3D("R", length=600, width=900, height=700, dest="X", allow_rotate=False)))
+
+        # 2つの支持箱をまたぐ bridging 配置は不許可。
+        self.assertFalse(
+            bin_.add(Item3D("TOP", length=1200, width=900, height=700, dest="X", allow_rotate=False))
+        )
+
+    def test_rejects_overhang_when_support_is_smaller(self) -> None:
+        overhang_container = type(CONTAINER_20FT)(l=900, w=900, h=1500)
+        bin_ = Bin3D(container=overhang_container, dest="X")
+
+        self.assertTrue(
+            bin_.add(Item3D("BASE", length=800, width=900, height=700, dest="X", allow_rotate=False))
+        )
+
+        # 支持箱より上箱の底面が大きい overhang 配置は不許可。
+        self.assertFalse(
+            bin_.add(Item3D("TOP", length=900, width=900, height=700, dest="X", allow_rotate=False))
+        )
+
+    def test_bin_add_rejects_destination_mismatch(self) -> None:
+        bin_ = Bin3D(container=CONTAINER_20FT, dest="X")
+        self.assertFalse(bin_.add(Item3D("Y1", length=1000, width=800, height=600, dest="Y")))
 
     def test_realdata_3d_packing_is_valid(self) -> None:
         items = build_step2_3d_realdata_items()
