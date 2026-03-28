@@ -24,6 +24,10 @@ Step2 では、重量制約や重心制約はまだ入れずに、まず「箱�
 
 ![Step2 3D example](step2_3d_stacking_example.svg)
 
+さらに、斜め上から見た立体図も用意できます。
+
+![Step2 3D isometric example](step2_3d_stacking_example_isometric.svg)
+
 ### 配置結果
 
 | bin | item | dest | x | y | z | l | w | h | rotated |
@@ -38,6 +42,12 @@ Step2 では、重量制約や重心制約はまだ入れずに、まず「箱�
 - Front: 長さ方向に見た積み上がり
 - Side: 幅方向に見た積み上がり
 
+## 立体図の見方
+
+- 上下関係を一目で把握しやすい
+- 手前と奥の箱の位置関係を説明しやすい
+- 三面図より直感的だが、厳密な寸法確認は三面図の方が向く
+
 ## 本番データの説明資料
 
 本番データ 80 箱に対する三面図と説明レポートは、次のコマンドで再生成できます。
@@ -50,3 +60,4 @@ python scripts\generate_step2_3d_explanation.py
 
 - `artifacts/step2_3d_explanation/README.md`
 - `artifacts/step2_3d_explanation/realdata/*.svg`
+- `artifacts/step2_3d_explanation/example/stacking_single_bin_example_isometric.svg`

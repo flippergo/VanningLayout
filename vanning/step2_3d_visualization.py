@@ -1,6 +1,7 @@
 """SVG visualization helpers for Step2 3D packing results."""
 
 from html import escape
+from math import cos, radians, sin
 from pathlib import Path
 
 from vanning.step2_3d import Bin3D, PackingSummary3D, PlacedItem3D
@@ -12,6 +13,8 @@ _BOX_COLORS: dict[str, str] = {
     "C": "#59A14F",
 }
 _DEFAULT_COLOR = "#BAB0AC"
+_ISO_COS = cos(radians(30))
+_ISO_SIN = sin(radians(30))
 
 
 def _box_type_from_item_id(item_id: str) -> str:
@@ -22,6 +25,170 @@ def _box_type_from_item_id(item_id: str) -> str:
 
 def _fill_color(placement: PlacedItem3D) -> str:
     return _BOX_COLORS.get(_box_type_from_item_id(placement.item.item_id), _DEFAULT_COLOR)
+
+
+def _shade_color(hex_color: str, factor: float) -> str:
+    hex_color = hex_color.lstrip("#")
+    if len(hex_color) != 6:
+        return f"#{hex_color}"
+
+    parts = [int(hex_color[idx : idx + 2], 16) for idx in (0, 2, 4)]
+    adjusted = [max(0, min(255, int(round(channel * factor)))) for channel in parts]
+    return "#" + "".join(f"{channel:02X}" for channel in adjusted)
+
+
+def _iso_project(x: float, y: float, z: float) -> tuple[float, float]:
+    return ((x - y) * _ISO_COS, (x + y) * _ISO_SIN - z)
+
+
+def _iso_polygon(points: list[tuple[float, float]]) -> str:
+    return " ".join(f"{x:.2f},{y:.2f}" for x, y in points)
+
+
+def render_bin_isometric_svg(
+    bin_: Bin3D,
+    *,
+    title: str | None = None,
+    max_width_px: int = 760,
+    max_height_px: int = 520,
+    margin_px: int = 32,
+) -> str:
+    """Render one 3D bin as an isometric SVG view."""
+    if max_width_px <= 0 or max_height_px <= 0:
+        raise ValueError("max_width_px and max_height_px must be positive")
+    if margin_px < 0:
+        raise ValueError("margin_px must be non-negative")
+
+    container_points = [
+        _iso_project(x, y, z)
+        for x in (0.0, bin_.container.l)
+        for y in (0.0, bin_.container.w)
+        for z in (0.0, bin_.container.h)
+    ]
+    min_x = min(point[0] for point in container_points)
+    max_x = max(point[0] for point in container_points)
+    min_y = min(point[1] for point in container_points)
+    max_y = max(point[1] for point in container_points)
+
+    raw_width = max_x - min_x
+    raw_height = max_y - min_y
+    scale = min(max_width_px / raw_width, max_height_px / raw_height)
+
+    title_height = 34
+    footer_height = 54
+    svg_width = int(round(raw_width * scale + margin_px * 2))
+    svg_height = int(round(raw_height * scale + margin_px * 2 + title_height + footer_height))
+    offset_x = margin_px - min_x * scale
+    offset_y = margin_px + title_height - min_y * scale
+
+    def point(x: float, y: float, z: float) -> tuple[float, float]:
+        px, py = _iso_project(x, y, z)
+        return (offset_x + px * scale, offset_y + py * scale)
+
+    def box_vertices(placement: PlacedItem3D) -> dict[str, tuple[float, float]]:
+        x0 = placement.x
+        x1 = placement.x + placement.length
+        y0 = placement.y
+        y1 = placement.y + placement.width
+        z0 = placement.z
+        z1 = placement.z + placement.height
+        return {
+            "000": point(x0, y0, z0),
+            "100": point(x1, y0, z0),
+            "010": point(x0, y1, z0),
+            "110": point(x1, y1, z0),
+            "001": point(x0, y0, z1),
+            "101": point(x1, y0, z1),
+            "011": point(x0, y1, z1),
+            "111": point(x1, y1, z1),
+        }
+
+    title_text = title or f"Dest {bin_.dest} isometric layout ({len(bin_.placements)} items)"
+    lines: list[str] = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        (
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{svg_width}" '
+            f'height="{svg_height}" viewBox="0 0 {svg_width} {svg_height}">'
+        ),
+        '<rect x="0" y="0" width="100%" height="100%" fill="#F8F9FB"/>',
+        f'<text x="{margin_px}" y="{margin_px + 6}" font-size="18" '
+        'font-family="Segoe UI, sans-serif" fill="#1F2937">'
+        f"{escape(title_text)}</text>",
+    ]
+
+    container = {
+        "000": point(0.0, 0.0, 0.0),
+        "100": point(bin_.container.l, 0.0, 0.0),
+        "010": point(0.0, bin_.container.w, 0.0),
+        "110": point(bin_.container.l, bin_.container.w, 0.0),
+        "001": point(0.0, 0.0, bin_.container.h),
+        "1001": point(bin_.container.l, 0.0, bin_.container.h),
+        "0101": point(0.0, bin_.container.w, bin_.container.h),
+        "1101": point(bin_.container.l, bin_.container.w, bin_.container.h),
+    }
+    container_edges = [
+        ("000", "100"),
+        ("000", "010"),
+        ("000", "001"),
+        ("100", "110"),
+        ("100", "1001"),
+        ("010", "110"),
+        ("010", "0101"),
+        ("110", "1101"),
+        ("001", "1001"),
+        ("001", "0101"),
+        ("1001", "1101"),
+        ("0101", "1101"),
+    ]
+
+    for start, end in container_edges:
+        sx, sy = container[start]
+        ex, ey = container[end]
+        lines.append(
+            f'<line x1="{sx:.2f}" y1="{sy:.2f}" x2="{ex:.2f}" y2="{ey:.2f}" '
+            'stroke="#CBD5E1" stroke-width="1.5"/>'
+        )
+
+    for placement in sorted(bin_.placements, key=lambda p: (p.x + p.y + p.z, p.z, p.y, p.x)):
+        vertices = box_vertices(placement)
+        base_color = _fill_color(placement)
+        top_face = [vertices["001"], vertices["101"], vertices["111"], vertices["011"]]
+        x_face = [vertices["000"], vertices["100"], vertices["101"], vertices["001"]]
+        y_face = [vertices["000"], vertices["010"], vertices["011"], vertices["001"]]
+        label_x = sum(vertex[0] for vertex in top_face) / 4
+        label_y = sum(vertex[1] for vertex in top_face) / 4
+        label = placement.item.item_id + (" (R)" if placement.rotated else "")
+
+        lines.extend(
+            [
+                f'<polygon points="{_iso_polygon(y_face)}" fill="{_shade_color(base_color, 0.82)}" '
+                'stroke="#111827" stroke-width="1"/>',
+                f'<polygon points="{_iso_polygon(x_face)}" fill="{_shade_color(base_color, 0.94)}" '
+                'stroke="#111827" stroke-width="1"/>',
+                f'<polygon points="{_iso_polygon(top_face)}" fill="{_shade_color(base_color, 1.10)}" '
+                'stroke="#111827" stroke-width="1"/>',
+                f'<text x="{label_x:.2f}" y="{label_y:.2f}" text-anchor="middle" '
+                'dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" '
+                f'fill="#111827">{escape(label)}</text>',
+            ]
+        )
+
+    utilization = 1.0 - (bin_.remaining_volume / (bin_.container.l * bin_.container.w * bin_.container.h))
+    footer_y = svg_height - margin_px
+    lines.extend(
+        [
+            f'<text x="{margin_px}" y="{footer_y - 18}" font-size="13" '
+            'font-family="Segoe UI, sans-serif" fill="#374151">'
+            f'Dest: {escape(bin_.dest)}  Items: {len(bin_.placements)}  Volume utilization: {utilization:.1%}'
+            "</text>",
+            f'<text x="{margin_px}" y="{footer_y}" font-size="12" '
+            'font-family="Consolas, monospace" fill="#6B7280">'
+            f"L={int(bin_.container.l)}mm W={int(bin_.container.w)}mm H={int(bin_.container.h)}mm"
+            "</text>",
+            "</svg>",
+        ]
+    )
+    return "\n".join(lines)
 
 
 def render_bin_orthographic_svg(
@@ -216,6 +383,29 @@ def save_packing_summary_svgs(
         svg = render_bin_orthographic_svg(
             bin_,
             title=f"Bin {idx:02d} (Dest {bin_.dest})",
+        )
+        file_path.write_text(svg, encoding="utf-8")
+        generated.append(file_path)
+
+    return generated
+
+
+def save_packing_summary_isometric_svgs(
+    summary: PackingSummary3D,
+    output_dir: str | Path,
+    *,
+    prefix: str = "step2_3d_iso",
+) -> list[Path]:
+    """Save one isometric SVG per bin in the packing summary."""
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    generated: list[Path] = []
+    for idx, bin_ in enumerate(summary.bins, start=1):
+        file_path = out_dir / f"{prefix}_bin{idx:02d}_{bin_.dest}.svg"
+        svg = render_bin_isometric_svg(
+            bin_,
+            title=f"Bin {idx:02d} (Dest {bin_.dest}) isometric",
         )
         file_path.write_text(svg, encoding="utf-8")
         generated.append(file_path)

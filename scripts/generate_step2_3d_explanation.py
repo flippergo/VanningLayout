@@ -11,7 +11,12 @@ if str(REPO_ROOT) not in sys.path:
 from vanning.geometry import Container
 from vanning.problem_spec import CONTAINER_20FT, build_step2_3d_realdata_items
 from vanning.step2_3d import Item3D, PackingSummary3D, pack_3d_by_destination_ffd
-from vanning.step2_3d_visualization import render_bin_orthographic_svg, save_packing_summary_svgs
+from vanning.step2_3d_visualization import (
+    render_bin_isometric_svg,
+    render_bin_orthographic_svg,
+    save_packing_summary_isometric_svgs,
+    save_packing_summary_svgs,
+)
 
 
 def _build_stacking_example() -> tuple[Container, list[Item3D], PackingSummary3D]:
@@ -47,7 +52,9 @@ def _write_markdown_report(
     example_summary: PackingSummary3D,
     realdata_summary: PackingSummary3D,
     example_svg_path: Path,
+    example_iso_svg_path: Path,
     realdata_svgs: list[Path],
+    realdata_isometric_svgs: list[Path],
 ) -> None:
     counts = Counter(bin_.dest for bin_ in realdata_summary.bins)
     content = f"""# Step2 3D配置の説明資料
@@ -78,6 +85,12 @@ Step2 では、重量制約や重心制約はまだ入れずに、まず「箱�
 
 ![example]({example_svg_path.as_posix()})
 
+### 立体図
+
+斜め上から見た図も追加しています。箱の上下関係と、床面のどこを使っているかを同時に把握しやすくなります。
+
+![example-iso]({example_iso_svg_path.as_posix()})
+
 ### 例題の配置結果
 
 {_placement_table(example_summary)}
@@ -93,11 +106,21 @@ Step2 では、重量制約や重心制約はまだ入れずに、まず「箱�
 
 {chr(10).join(f"- `{path.as_posix()}`" for path in realdata_svgs)}
 
+### 本番データの立体図ファイル
+
+{chr(10).join(f"- `{path.as_posix()}`" for path in realdata_isometric_svgs)}
+
 三面図として出しているので、次を見分けやすくしています。
 
 - Top: 床面の詰まり方
 - Front: 長さ方向に見た積み上がり
 - Side: 幅方向に見た積み上がり
+
+立体図では、次が見やすくなります。
+
+- どの箱が上に載っているか
+- 手前と奥の箱の位置関係
+- 1つの箱がどのくらい高さを使っているか
 """
     report_path.write_text(content, encoding="utf-8")
 
@@ -111,8 +134,13 @@ def main() -> None:
     _, _, example_summary = _build_stacking_example()
     example_dir.mkdir(parents=True, exist_ok=True)
     example_svg = example_dir / "stacking_single_bin_example.svg"
+    example_iso_svg = example_dir / "stacking_single_bin_example_isometric.svg"
     example_svg.write_text(
         render_bin_orthographic_svg(example_summary.bins[0], title="Example: stacking keeps one bin"),
+        encoding="utf-8",
+    )
+    example_iso_svg.write_text(
+        render_bin_isometric_svg(example_summary.bins[0], title="Example: stacking keeps one bin"),
         encoding="utf-8",
     )
 
@@ -123,6 +151,11 @@ def main() -> None:
         realdata_dir,
         prefix="step2_3d_realdata",
     )
+    realdata_isometric_svgs = save_packing_summary_isometric_svgs(
+        realdata_summary,
+        realdata_dir,
+        prefix="step2_3d_realdata_isometric",
+    )
 
     report_path = output_root / "README.md"
     _write_markdown_report(
@@ -130,12 +163,16 @@ def main() -> None:
         example_summary=example_summary,
         realdata_summary=realdata_summary,
         example_svg_path=example_svg.relative_to(output_root),
+        example_iso_svg_path=example_iso_svg.relative_to(output_root),
         realdata_svgs=[path.relative_to(output_root) for path in realdata_svgs],
+        realdata_isometric_svgs=[path.relative_to(output_root) for path in realdata_isometric_svgs],
     )
 
     print(f"report: {report_path.resolve()}")
     print(f"example svg: {example_svg.resolve()}")
-    print(f"realdata svgs: {len(realdata_svgs)} files in {realdata_dir.resolve()}")
+    print(f"example isometric svg: {example_iso_svg.resolve()}")
+    print(f"realdata orthographic svgs: {len(realdata_svgs)} files in {realdata_dir.resolve()}")
+    print(f"realdata isometric svgs: {len(realdata_isometric_svgs)} files in {realdata_dir.resolve()}")
 
 
 if __name__ == "__main__":
