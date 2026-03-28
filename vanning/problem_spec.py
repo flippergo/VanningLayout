@@ -5,6 +5,7 @@ from vanning.geometry import BoxPlacement, Container, oriented_size
 
 # 20ftコンテナの内寸 [mm]
 CONTAINER_20FT = Container(l=5898, w=2352, h=2393)
+CONTAINER_20FT_MAX_PAYLOAD_KG = 12000.0
 
 # 箱タイプごとの外形寸法 [mm]（長さ, 幅, 高さ）
 BOX_DIMS: dict[str, tuple[int, int, int]] = {
@@ -18,6 +19,89 @@ REALDATA_BOX_COUNTS: dict[str, int] = {
     "A": 30,
     "B": 30,
     "C": 20,
+}
+
+REALDATA_BOX_WEIGHTS_KG: dict[str, float] = {
+    "A01": 420.0,
+    "A02": 380.0,
+    "A03": 310.0,
+    "A04": 450.0,
+    "A05": 275.0,
+    "A06": 360.0,
+    "A07": 330.0,
+    "A08": 290.0,
+    "A09": 405.0,
+    "A10": 315.0,
+    "A11": 260.0,
+    "A12": 440.0,
+    "A13": 355.0,
+    "A14": 300.0,
+    "A15": 395.0,
+    "A16": 285.0,
+    "A17": 410.0,
+    "A18": 340.0,
+    "A19": 270.0,
+    "A20": 365.0,
+    "A21": 320.0,
+    "A22": 295.0,
+    "A23": 430.0,
+    "A24": 305.0,
+    "A25": 280.0,
+    "A26": 370.0,
+    "A27": 335.0,
+    "A28": 255.0,
+    "A29": 390.0,
+    "A30": 345.0,
+    "B01": 260.0,
+    "B02": 240.0,
+    "B03": 310.0,
+    "B04": 180.0,
+    "B05": 205.0,
+    "B06": 295.0,
+    "B07": 225.0,
+    "B08": 270.0,
+    "B09": 190.0,
+    "B10": 330.0,
+    "B11": 250.0,
+    "B12": 210.0,
+    "B13": 285.0,
+    "B14": 235.0,
+    "B15": 320.0,
+    "B16": 175.0,
+    "B17": 265.0,
+    "B18": 200.0,
+    "B19": 305.0,
+    "B20": 245.0,
+    "B21": 215.0,
+    "B22": 290.0,
+    "B23": 230.0,
+    "B24": 340.0,
+    "B25": 185.0,
+    "B26": 275.0,
+    "B27": 220.0,
+    "B28": 315.0,
+    "B29": 255.0,
+    "B30": 195.0,
+    "C01": 150.0,
+    "C02": 120.0,
+    "C03": 180.0,
+    "C04": 90.0,
+    "C05": 110.0,
+    "C06": 160.0,
+    "C07": 130.0,
+    "C08": 170.0,
+    "C09": 100.0,
+    "C10": 190.0,
+    "C11": 140.0,
+    "C12": 115.0,
+    "C13": 165.0,
+    "C14": 125.0,
+    "C15": 200.0,
+    "C16": 85.0,
+    "C17": 155.0,
+    "C18": 105.0,
+    "C19": 175.0,
+    "C20": 135.0,
 }
 
 
@@ -76,6 +160,13 @@ def destination_for_box_id(box_id: str) -> str:
     return "X" if serial <= 10 else "Y"
 
 
+def weight_for_box_id(box_id: str) -> float:
+    """箱IDに対応する重量[kg]を返す。"""
+    if box_id not in REALDATA_BOX_WEIGHTS_KG:
+        raise ValueError(f"重量データがありません: {box_id}")
+    return REALDATA_BOX_WEIGHTS_KG[box_id]
+
+
 def build_step1_2d_realdata_items(allow_rotate: bool = True) -> list["Item2D"]:
     """Step1-2D 用に、本番データ80箱を Item2D の配列へ変換する。"""
     # 循環参照を避けるため、必要時に import する。
@@ -111,6 +202,28 @@ def build_step2_3d_realdata_items(allow_rotate: bool = True) -> list["Item3D"]:
                 length=float(length),
                 width=float(width),
                 height=float(height),
+                dest=destination_for_box_id(box_id),
+                allow_rotate=allow_rotate,
+            )
+        )
+    return items
+
+
+def build_step3_weighted_realdata_items(allow_rotate: bool = True) -> list["WeightedItem3D"]:
+    """Step3 用に、本番データ80箱を重量つき3Dアイテムへ変換する。"""
+    from vanning.step3_weighted_3d import WeightedItem3D
+
+    items: list[WeightedItem3D] = []
+    for box_id in realdata_box_ids():
+        box_type = box_type_from_id(box_id)
+        length, width, height = BOX_DIMS[box_type]
+        items.append(
+            WeightedItem3D(
+                item_id=box_id,
+                length=float(length),
+                width=float(width),
+                height=float(height),
+                weight_kg=weight_for_box_id(box_id),
                 dest=destination_for_box_id(box_id),
                 allow_rotate=allow_rotate,
             )
