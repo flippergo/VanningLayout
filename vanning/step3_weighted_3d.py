@@ -176,16 +176,17 @@ def pack_weighted_3d_by_destination_ffd(
     packed_bins: list[WeightedPackedBin3D] = []
 
     for allocation_bin in allocations.bins:
-        weight_by_id = {item.item_id: item for item in allocation_bin.items}
-        step2_summary = pack_3d_by_destination_ffd(
-            [item.to_step2_item() for item in allocation_bin.items],
-            container,
-        )
+        step2_items = [item.to_step2_item() for item in allocation_bin.items]
+        weight_by_identity = {
+            id(step2_item): weighted_item
+            for step2_item, weighted_item in zip(step2_items, allocation_bin.items, strict=True)
+        }
+        step2_summary = pack_3d_by_destination_ffd(step2_items, container)
 
         for step2_bin in step2_summary.bins:
             placements = [
                 WeightedPlacedItem3D(
-                    item=weight_by_id[placement.item.item_id],
+                    item=weight_by_identity[id(placement.item)],
                     x=placement.x,
                     y=placement.y,
                     z=placement.z,

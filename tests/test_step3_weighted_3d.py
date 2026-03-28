@@ -51,6 +51,22 @@ class Step3WeightedThreeDimensionalPackingTests(unittest.TestCase):
         for bin_ in summary.bins:
             self.assertLessEqual(bin_.total_weight_kg, 12)
 
+    def test_duplicate_item_ids_preserve_individual_weights(self) -> None:
+        roomy_container = type(CONTAINER_20FT)(l=4000, w=2000, h=2000)
+        items = [
+            WeightedItem3D("DUP", 1000, 1000, 1000, 7, "X", allow_rotate=False),
+            WeightedItem3D("DUP", 1000, 1000, 1000, 5, "X", allow_rotate=False),
+        ]
+
+        summary = pack_weighted_3d_by_destination_ffd(items, roomy_container, max_weight_kg=20)
+
+        self.assertEqual(summary.bin_count, 1)
+        self.assertEqual(summary.bins[0].total_weight_kg, 12)
+        self.assertCountEqual(
+            [placement.item.weight_kg for placement in summary.bins[0].placements],
+            [7, 5],
+        )
+
     def test_realdata_weighted_packing_is_valid(self) -> None:
         items = build_step3_weighted_realdata_items()
         summary = pack_weighted_3d_by_destination_ffd(
