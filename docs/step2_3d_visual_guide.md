@@ -2,6 +2,14 @@
 
 Step2 では、重量制約や重心制約はまだ入れずに、まず「箱を3Dで置ける」実行可能解を作ります。
 
+## 出力先の整理
+
+- `artifacts/step2_3d_explanation/...`: 説明スクリプト `python scripts\generate_step2_3d_explanation.py` の本体出力
+- `artifacts/test_step2_3d_...`: テスト実行時だけに使う確認用出力
+- `docs/...svg`: ガイドから直接参照するために置いている固定の説明用画像
+
+本番データの全 bin を見たいときは、`artifacts/step2_3d_explanation/realdata/` を見ます。
+
 実装しているルールは次のとおりです。
 
 1. 行先ごとに箱を分け、体積の大きい順に処理する

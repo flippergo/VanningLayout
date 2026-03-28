@@ -2,6 +2,14 @@
 
 Step3 では、Step2 の 3D 配置に対して、重量上限と積み上げ安定性の確認を追加します。
 
+## 出力先の整理
+
+- `artifacts/step3_weighted_3d_explanation/...`: 説明スクリプト `python scripts\generate_step3_weighted_3d_explanation.py` の本体出力
+- `artifacts/test_step3_weighted_...`: テスト実行時だけに使う確認用出力。例題 summary を使うので `bin01` しか出ないことがある
+- `docs/...svg`: ガイドから直接参照するために置いている固定の説明用画像
+
+本番データの全 bin を見たいときは、`artifacts/step3_weighted_3d_explanation/realdata/` を見ます。
+
 実装しているルールは次のとおりです。
 
 1. 行先ごとに箱を分け、重い順に重量 bin へ割り当てる
