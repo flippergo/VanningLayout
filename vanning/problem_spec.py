@@ -7,6 +7,7 @@ from vanning.geometry import BoxPlacement, Container, oriented_size
 CONTAINER_20FT = Container(l=5898, w=2352, h=2393)
 CONTAINER_20FT_MAX_PAYLOAD_KG = 12000.0
 CONTAINER_20FT_CENTER_OF_GRAVITY_RADIUS_MM = 300.0
+STEP5_MIN_SUPPORT_AREA_RATIO = 0.8
 
 # 箱タイプごとの外形寸法 [mm]（長さ, 幅, 高さ）
 BOX_DIMS: dict[str, tuple[int, int, int]] = {
