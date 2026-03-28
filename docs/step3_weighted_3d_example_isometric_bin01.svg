@@ -14,18 +14,18 @@
 <line x1="257.17" y1="66.00" x2="32.00" y2="196.00" stroke="#CBD5E1" stroke-width="1.5"/>
 <line x1="594.92" y1="261.00" x2="369.75" y2="391.00" stroke="#CBD5E1" stroke-width="1.5"/>
 <line x1="32.00" y1="196.00" x2="369.75" y2="391.00" stroke="#CBD5E1" stroke-width="1.5"/>
-<polygon points="257.17,261.00 144.58,326.00 144.58,196.00 257.17,131.00" fill="#99908D" stroke="#111827" stroke-width="1"/>
-<polygon points="257.17,261.00 594.92,456.00 594.92,326.00 257.17,131.00" fill="#AFA5A2" stroke="#111827" stroke-width="1"/>
-<polygon points="257.17,131.00 594.92,326.00 482.33,391.00 144.58,196.00" fill="#CDC2BD" stroke="#111827" stroke-width="1"/>
-<text x="369.75" y="261.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">XC</text>
-<polygon points="144.58,326.00 32.00,391.00 32.00,196.00 144.58,131.00" fill="#99908D" stroke="#111827" stroke-width="1"/>
-<polygon points="144.58,326.00 257.17,391.00 257.17,196.00 144.58,131.00" fill="#AFA5A2" stroke="#111827" stroke-width="1"/>
-<polygon points="144.58,131.00 257.17,196.00 144.58,261.00 32.00,196.00" fill="#CDC2BD" stroke="#111827" stroke-width="1"/>
-<text x="144.58" y="196.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">XA</text>
-<polygon points="257.17,131.00 144.58,196.00 144.58,131.00 257.17,66.00" fill="#99908D" stroke="#111827" stroke-width="1"/>
-<polygon points="257.17,131.00 594.92,326.00 594.92,261.00 257.17,66.00" fill="#AFA5A2" stroke="#111827" stroke-width="1"/>
-<polygon points="257.17,66.00 594.92,261.00 482.33,326.00 144.58,131.00" fill="#CDC2BD" stroke="#111827" stroke-width="1"/>
-<text x="369.75" y="196.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">XB</text>
+<polygon points="257.17,261.00 144.58,326.00 144.58,196.00 257.17,131.00" fill="#498441" stroke="#111827" stroke-width="1"/>
+<polygon points="257.17,261.00 594.92,456.00 594.92,326.00 257.17,131.00" fill="#54974A" stroke="#111827" stroke-width="1"/>
+<polygon points="257.17,131.00 594.92,326.00 482.33,391.00 144.58,196.00" fill="#62B157" stroke="#111827" stroke-width="1"/>
+<text x="369.75" y="261.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">C</text>
+<polygon points="144.58,326.00 32.00,391.00 32.00,196.00 144.58,131.00" fill="#406389" stroke="#111827" stroke-width="1"/>
+<polygon points="144.58,326.00 257.17,391.00 257.17,196.00 144.58,131.00" fill="#49729D" stroke="#111827" stroke-width="1"/>
+<polygon points="144.58,131.00 257.17,196.00 144.58,261.00 32.00,196.00" fill="#5685B8" stroke="#111827" stroke-width="1"/>
+<text x="144.58" y="196.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">A</text>
+<polygon points="257.17,131.00 144.58,196.00 144.58,131.00 257.17,66.00" fill="#C67423" stroke="#111827" stroke-width="1"/>
+<polygon points="257.17,131.00 594.92,326.00 594.92,261.00 257.17,66.00" fill="#E38528" stroke="#111827" stroke-width="1"/>
+<polygon points="257.17,66.00 594.92,261.00 482.33,326.00 144.58,131.00" fill="#FF9C2F" stroke="#111827" stroke-width="1"/>
+<text x="369.75" y="196.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">B</text>
 <text x="32" y="622" font-size="13" font-family="Segoe UI, sans-serif" fill="#374151">Dest: X  Items: 3  Volume utilization: 66.7%</text>
 <text x="32" y="640" font-size="12" font-family="Consolas, monospace" fill="#6B7280">L=6mm W=4mm H=3mm</text>
 </svg>

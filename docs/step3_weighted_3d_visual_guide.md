@@ -15,22 +15,25 @@ Step3 では、Step2 の 3D 配置に対して、重量上限と積み上げ安�
 
 - コンテナ: `L=6, W=4, H=3`
 - 重量上限: `12kg`
-- X向け 3箱: `XA=2x2x3 (5kg)`, `XB=6x2x1 (4kg)`, `XC=6x2x2 (3kg)`
-- Y向け 3箱: `YA=2x2x3 (6kg)`, `YB=6x2x1 (4kg)`, `YC=6x2x2 (2kg)`
+- 箱A: `2x2x3 (5kg)`
+- 箱B: `6x2x1 (4kg)`
+- 箱C: `6x2x2 (3kg)`
 
-この例では、X と Y を混載せず、それぞれ 1 bin ずつに積み上げます。
+この例では、Step2 と同じ積み上げ形を保ったまま、重量情報を重ねて見ます。
 
-### bin 1: 行先 X
+### 例題
 
 ![Step3 weighted example bin1](step3_weighted_3d_example_bin01.svg)
 
 ![Step3 weighted isometric bin1](step3_weighted_3d_example_isometric_bin01.svg)
 
-### bin 2: 行先 Y
+### 例題2: 本番データ対応例
 
-![Step3 weighted example bin2](step3_weighted_3d_example_bin02.svg)
+本番データの代表として、bin 01 の図も並べます。
 
-![Step3 weighted isometric bin2](step3_weighted_3d_example_isometric_bin02.svg)
+![Step3 weighted realdata example](step3_weighted_3d_example_bin02.svg)
+
+![Step3 weighted realdata isometric example](step3_weighted_3d_example_isometric_bin02.svg)
 
 ## 説明レポートの生成
 

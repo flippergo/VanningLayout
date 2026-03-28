@@ -24,12 +24,9 @@ from vanning.step3_weighted_3d_visualization import (
 def _build_small_step32_example() -> tuple[Container, list[WeightedItem3D], WeightedPackingSummary3D]:
     container = Container(l=6, w=4, h=3)
     items = [
-        WeightedItem3D("XA", 2, 2, 3, 5, "X", allow_rotate=False),
-        WeightedItem3D("XB", 6, 2, 1, 4, "X", allow_rotate=False),
-        WeightedItem3D("XC", 6, 2, 2, 3, "X", allow_rotate=False),
-        WeightedItem3D("YA", 2, 2, 3, 6, "Y", allow_rotate=False),
-        WeightedItem3D("YB", 6, 2, 1, 4, "Y", allow_rotate=False),
-        WeightedItem3D("YC", 6, 2, 2, 2, "Y", allow_rotate=False),
+        WeightedItem3D("A", 2, 2, 3, 5, "X", allow_rotate=False),
+        WeightedItem3D("B", 6, 2, 1, 4, "X", allow_rotate=False),
+        WeightedItem3D("C", 6, 2, 2, 3, "X", allow_rotate=False),
     ]
     summary = pack_weighted_3d_by_destination_ffd(items, container, max_weight_kg=12)
     return container, items, summary
@@ -93,11 +90,12 @@ Step3 では、Step2 の 3D 配置に次の 2 つを追加します。
 
 - コンテナ: `L=6, W=4, H=3`
 - 重量上限: `12kg`
-- X向け 3箱: `XA=2x2x3 (5kg)`, `XB=6x2x1 (4kg)`, `XC=6x2x2 (3kg)`
-- Y向け 3箱: `YA=2x2x3 (6kg)`, `YB=6x2x1 (4kg)`, `YC=6x2x2 (2kg)`
+- 箱A: `2x2x3 (5kg)`
+- 箱B: `6x2x1 (4kg)`
+- 箱C: `6x2x2 (3kg)`
 
-この箱セットは、床面に `B` 系の箱を置き、その上に `C` 系の箱を積み、残りの床面に `A` 系の箱を立てる積み上げ例です。  
-Step3 ではこの Step2 の積み上げに対して、`X` と `Y` を分け、各 bin の重量上限も同時に確認します。
+この箱セットは、床面に `C` を置き、その上に `B` を積み、残りの床面に `A` を立てる積み上げ例です。  
+Step3 ではこの Step2 の積み上げに対して、重量上限と支持安定性を同時に確認します。
 
 ### 例題の bin サマリ
 
@@ -114,6 +112,15 @@ Step3 ではこの Step2 の積み上げに対して、`X` と `Y` を分け、�
 ### 例題の配置結果
 
 {_placement_table(example_summary)}
+
+## 例題2: 本番データ対応例
+
+本番データの bin 01 を、そのまま「代表例」として載せます。
+小問題で見た 3 面図と立体図が、本番サイズではどう見えるかを対応づけるためです。
+
+![realdata-example]({realdata_svgs[0].as_posix()})
+
+![realdata-example-iso]({realdata_isometric_svgs[0].as_posix()})
 
 ## 本番データの結果
 
