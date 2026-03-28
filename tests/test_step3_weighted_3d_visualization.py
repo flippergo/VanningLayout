@@ -14,11 +14,14 @@ from vanning.step3_weighted_3d_visualization import (
 
 class Step3WeightedThreeDimensionalVisualizationTests(unittest.TestCase):
     def _build_summary(self):
-        container = Container(l=6000, w=3000, h=3000)
+        container = Container(l=6, w=4, h=3)
         items = [
-            WeightedItem3D("A1", 1000, 1000, 1000, 7, "X", allow_rotate=False),
-            WeightedItem3D("A2", 1000, 1000, 1000, 7, "X", allow_rotate=False),
-            WeightedItem3D("A3", 1000, 1000, 1000, 5, "X", allow_rotate=False),
+            WeightedItem3D("XA", 2, 2, 3, 5, "X", allow_rotate=False),
+            WeightedItem3D("XB", 6, 2, 1, 4, "X", allow_rotate=False),
+            WeightedItem3D("XC", 6, 2, 2, 3, "X", allow_rotate=False),
+            WeightedItem3D("YA", 2, 2, 3, 6, "Y", allow_rotate=False),
+            WeightedItem3D("YB", 6, 2, 1, 4, "Y", allow_rotate=False),
+            WeightedItem3D("YC", 6, 2, 2, 2, "Y", allow_rotate=False),
         ]
         return pack_weighted_3d_by_destination_ffd(items, container, max_weight_kg=12)
 
@@ -30,7 +33,7 @@ class Step3WeightedThreeDimensionalVisualizationTests(unittest.TestCase):
         self.assertIn("<svg", svg)
         self.assertIn("Weighted Demo", svg)
         self.assertIn("Top (X-Y)", svg)
-        self.assertIn("A1", svg)
+        self.assertIn("XA", svg)
 
     def test_render_weighted_bin_isometric_svg_contains_expected_labels(self) -> None:
         summary = self._build_summary()
@@ -40,7 +43,7 @@ class Step3WeightedThreeDimensionalVisualizationTests(unittest.TestCase):
         self.assertIn("<svg", svg)
         self.assertIn("Weighted Isometric Demo", svg)
         self.assertIn("polygon", svg)
-        self.assertIn("A1", svg)
+        self.assertIn("XA", svg)
 
     def test_save_weighted_packing_summary_svgs_writes_files(self) -> None:
         summary = self._build_summary()

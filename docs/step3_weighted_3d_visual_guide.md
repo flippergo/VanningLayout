@@ -11,23 +11,22 @@ Step3 では、Step2 の 3D 配置に対して、重量上限と積み上げ安�
 
 ## 例題
 
-「空間的には 1 bin に入るが、重量上限のため 2 bin に分かれる」例を使います。
+`approach.md` の **小3-2** に合わせて、**小2-1 と同じ箱セット**を使います。
 
-- コンテナ: `L=6000, W=3000, H=3000`
+- コンテナ: `L=6, W=4, H=3`
 - 重量上限: `12kg`
-- 箱A1: `1000x1000x1000, 7kg`
-- 箱A2: `1000x1000x1000, 7kg`
-- 箱A3: `1000x1000x1000, 5kg`
+- X向け 3箱: `XA=2x2x3 (5kg)`, `XB=6x2x1 (4kg)`, `XC=6x2x2 (3kg)`
+- Y向け 3箱: `YA=2x2x3 (6kg)`, `YB=6x2x1 (4kg)`, `YC=6x2x2 (2kg)`
 
-この例では `7 + 7 + 5 = 19kg` なので、Step3 は 2 bin に分けます。
+この例では、X と Y を混載せず、それぞれ 1 bin ずつに積み上げます。
 
-### bin 1
+### bin 1: 行先 X
 
 ![Step3 weighted example bin1](step3_weighted_3d_example_bin01.svg)
 
 ![Step3 weighted isometric bin1](step3_weighted_3d_example_isometric_bin01.svg)
 
-### bin 2
+### bin 2: 行先 Y
 
 ![Step3 weighted example bin2](step3_weighted_3d_example_bin02.svg)
 

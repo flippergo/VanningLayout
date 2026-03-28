@@ -21,12 +21,15 @@ from vanning.step3_weighted_3d_visualization import (
 )
 
 
-def _build_weight_split_example() -> tuple[Container, list[WeightedItem3D], WeightedPackingSummary3D]:
-    container = Container(l=6000, w=3000, h=3000)
+def _build_small_step32_example() -> tuple[Container, list[WeightedItem3D], WeightedPackingSummary3D]:
+    container = Container(l=6, w=4, h=3)
     items = [
-        WeightedItem3D("A1", 1000, 1000, 1000, 7, "X", allow_rotate=False),
-        WeightedItem3D("A2", 1000, 1000, 1000, 7, "X", allow_rotate=False),
-        WeightedItem3D("A3", 1000, 1000, 1000, 5, "X", allow_rotate=False),
+        WeightedItem3D("XA", 2, 2, 3, 5, "X", allow_rotate=False),
+        WeightedItem3D("XB", 6, 2, 1, 4, "X", allow_rotate=False),
+        WeightedItem3D("XC", 6, 2, 2, 3, "X", allow_rotate=False),
+        WeightedItem3D("YA", 2, 2, 3, 6, "Y", allow_rotate=False),
+        WeightedItem3D("YB", 6, 2, 1, 4, "Y", allow_rotate=False),
+        WeightedItem3D("YC", 6, 2, 2, 2, "Y", allow_rotate=False),
     ]
     summary = pack_weighted_3d_by_destination_ffd(items, container, max_weight_kg=12)
     return container, items, summary
@@ -86,16 +89,15 @@ Step3 では、Step2 の 3D 配置に次の 2 つを追加します。
 
 ## 例題
 
-「空間的には 1 bin に入るが、重量上限のため 2 bin に分かれる」例です。
+`approach.md` の **小3-2** に合わせて、**小2-1 と同じ箱セット**に重量を付けた例です。
 
-- コンテナ: `L=6000, W=3000, H=3000`
+- コンテナ: `L=6, W=4, H=3`
 - 重量上限: `12kg`
-- 箱A1: `1000x1000x1000, 7kg`
-- 箱A2: `1000x1000x1000, 7kg`
-- 箱A3: `1000x1000x1000, 5kg`
+- X向け 3箱: `XA=2x2x3 (5kg)`, `XB=6x2x1 (4kg)`, `XC=6x2x2 (3kg)`
+- Y向け 3箱: `YA=2x2x3 (6kg)`, `YB=6x2x1 (4kg)`, `YC=6x2x2 (2kg)`
 
-この例では、Step2 だけなら 1 bin に収まりますが、Step3 では `7 + 7 + 5 = 19kg` なので重量上限を超えます。  
-そのため、`7+5` と `7` に分けて 2 bin にします。
+この箱セットは、床面に `B` 系の箱を置き、その上に `C` 系の箱を積み、残りの床面に `A` 系の箱を立てる積み上げ例です。  
+Step3 ではこの Step2 の積み上げに対して、`X` と `Y` を分け、各 bin の重量上限も同時に確認します。
 
 ### 例題の bin サマリ
 
@@ -148,7 +150,7 @@ def main() -> None:
     realdata_dir = output_root / "realdata"
     output_root.mkdir(parents=True, exist_ok=True)
 
-    _, _, example_summary = _build_weight_split_example()
+    _, _, example_summary = _build_small_step32_example()
     example_dir.mkdir(parents=True, exist_ok=True)
     example_svgs = save_weighted_packing_summary_svgs(
         example_summary,
