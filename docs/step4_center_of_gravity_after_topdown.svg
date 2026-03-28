@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="616" height="598" viewBox="0 0 616 598">
+<rect x="0" y="0" width="100%" height="100%" fill="#F8F9FB"/>
+<text x="28" y="34" font-size="18" font-family="Segoe UI, sans-serif" fill="#1F2937">Bin 01 (Dest X) center-of-gravity view</text>
+<rect x="28" y="58" width="560" height="436" fill="#FFFFFF" stroke="#1F2937" stroke-width="2"/>
+<circle cx="308.00" cy="275.78" r="18.67" fill="none" stroke="#2563EB" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="28.00" y="213.56" width="373.33" height="124.44" fill="#D97706" fill-opacity="0.45" stroke="#111827" stroke-width="1"/>
+<text x="214.67" y="275.78" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">C</text>
+<rect x="401.33" y="213.56" width="124.44" height="124.44" fill="#D97706" fill-opacity="0.45" stroke="#111827" stroke-width="1"/>
+<text x="463.56" y="275.78" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">A</text>
+<rect x="28.00" y="213.56" width="373.33" height="124.44" fill="#D97706" fill-opacity="0.45" stroke="#111827" stroke-width="1"/>
+<text x="214.67" y="275.78" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">B</text>
+<line x1="308.00" y1="275.78" x2="318.37" y2="275.78" stroke="#DC2626" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="308.00" cy="275.78" r="5" fill="#2563EB"/>
+<circle cx="318.37" cy="275.78" r="5" fill="#DC2626"/>
+<text x="28" y="534" font-size="13" font-family="Segoe UI, sans-serif" fill="#374151">Center offset: 166.7/300.0 mm</text>
+<text x="28" y="552" font-size="12" font-family="Consolas, monospace" fill="#374151">Container center=(4500.0, 3500.0)  CG=(4666.7, 3500.0)</text>
+<text x="28" y="570" font-size="12" font-family="Consolas, monospace" fill="#6B7280">Blue: allowed center region  Red: actual center of gravity</text>
+</svg>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="719" height="672" viewBox="0 0 719 672">
+<rect x="0" y="0" width="100%" height="100%" fill="#F8F9FB"/>
+<text x="32" y="38" font-size="18" font-family="Segoe UI, sans-serif" fill="#1F2937">Bin 01 (Dest X, offset 166.7/300.0 mm) isometric</text>
+<line x1="318.58" y1="207.82" x2="687.03" y2="420.55" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="318.58" y1="207.82" x2="32.00" y2="373.27" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="318.58" y1="207.82" x2="318.58" y2="66.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="687.03" y1="420.55" x2="400.45" y2="586.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="687.03" y1="420.55" x2="687.03" y2="278.73" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="32.00" y1="373.27" x2="400.45" y2="586.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="32.00" y1="373.27" x2="32.00" y2="231.45" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="400.45" y1="586.00" x2="400.45" y2="444.18" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="318.58" y1="66.00" x2="687.03" y2="278.73" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="318.58" y1="66.00" x2="32.00" y2="231.45" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="687.03" y1="278.73" x2="400.45" y2="444.18" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="32.00" y1="231.45" x2="400.45" y2="444.18" stroke="#CBD5E1" stroke-width="1.5"/>
+<polygon points="216.23,266.91 134.35,314.18 134.35,219.64 216.23,172.36" fill="#498441" stroke="#111827" stroke-width="1"/>
+<polygon points="216.23,266.91 461.86,408.73 461.86,314.18 216.23,172.36" fill="#54974A" stroke="#111827" stroke-width="1"/>
+<polygon points="216.23,172.36 461.86,314.18 379.98,361.45 134.35,219.64" fill="#62B157" stroke="#111827" stroke-width="1"/>
+<text x="298.11" y="266.91" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">C</text>
+<polygon points="216.23,172.36 134.35,219.64 134.35,172.36 216.23,125.09" fill="#C67423" stroke="#111827" stroke-width="1"/>
+<polygon points="216.23,172.36 461.86,314.18 461.86,266.91 216.23,125.09" fill="#E38528" stroke="#111827" stroke-width="1"/>
+<polygon points="216.23,125.09 461.86,266.91 379.98,314.18 134.35,172.36" fill="#FF9C2F" stroke="#111827" stroke-width="1"/>
+<text x="298.11" y="219.64" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">B</text>
+<polygon points="461.86,408.73 379.98,456.00 379.98,314.18 461.86,266.91" fill="#406389" stroke="#111827" stroke-width="1"/>
+<polygon points="461.86,408.73 543.74,456.00 543.74,314.18 461.86,266.91" fill="#49729D" stroke="#111827" stroke-width="1"/>
+<polygon points="461.86,266.91 543.74,314.18 461.86,361.45 379.98,314.18" fill="#5685B8" stroke="#111827" stroke-width="1"/>
+<text x="461.86" y="314.18" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">A</text>
+<text x="32" y="622" font-size="13" font-family="Segoe UI, sans-serif" fill="#374151">Dest: X  Items: 3  Volume utilization: 25.4%</text>
+<text x="32" y="640" font-size="12" font-family="Consolas, monospace" fill="#6B7280">L=9000mm W=7000mm H=3000mm</text>
+</svg>
