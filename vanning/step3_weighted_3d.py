@@ -127,6 +127,40 @@ class WeightedPackingSummary3D:
         return sum(bin_.total_weight_kg for bin_ in self.bins)
 
 
+def is_stably_supported(
+    placement: WeightedPlacedItem3D, placements: list[WeightedPlacedItem3D]
+) -> bool:
+    """Return True when the placement's center of mass is vertically supported."""
+    if placement.z == 0:
+        return True
+
+    center_x = placement.x + placement.length / 2
+    center_y = placement.y + placement.width / 2
+
+    for supporter in placements:
+        if supporter is placement or supporter.box.z_max != placement.z:
+            continue
+
+        overlap_x_min = max(placement.x, supporter.x)
+        overlap_x_max = min(placement.box.x_max, supporter.box.x_max)
+        overlap_y_min = max(placement.y, supporter.y)
+        overlap_y_max = min(placement.box.y_max, supporter.box.y_max)
+
+        if overlap_x_min >= overlap_x_max or overlap_y_min >= overlap_y_max:
+            continue
+        if overlap_x_min <= center_x <= overlap_x_max and overlap_y_min <= center_y <= overlap_y_max:
+            return True
+
+    return False
+
+
+def validate_stable_placements(placements: list[WeightedPlacedItem3D]) -> None:
+    """Raise when any placement would tip because its center of mass is unsupported."""
+    for placement in sorted(placements, key=lambda placed: (placed.z, placed.y, placed.x, placed.item.item_id)):
+        if not is_stably_supported(placement, placements):
+            raise ValueError(f"unstable placement: {placement.item.item_id}")
+
+
 def assign_by_destination_and_weight_ffd(
     items: list[WeightedItem3D], max_weight_kg: float
 ) -> WeightAllocationSummary:
@@ -197,6 +231,7 @@ def pack_weighted_3d_by_destination_ffd(
                 )
                 for placement in step2_bin.placements
             ]
+            validate_stable_placements(placements)
             packed_bins.append(
                 WeightedPackedBin3D(
                     container=container,

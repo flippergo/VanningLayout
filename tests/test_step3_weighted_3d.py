@@ -10,8 +10,11 @@ from vanning.problem_spec import (
 )
 from vanning.step3_weighted_3d import (
     WeightedItem3D,
+    WeightedPlacedItem3D,
     assign_by_destination_and_weight_ffd,
+    is_stably_supported,
     pack_weighted_3d_by_destination_ffd,
+    validate_stable_placements,
 )
 
 
@@ -67,6 +70,81 @@ class Step3WeightedThreeDimensionalPackingTests(unittest.TestCase):
             [7, 5],
         )
 
+    def test_stability_accepts_center_supported_by_adjacent_boxes(self) -> None:
+        base_left = WeightedPlacedItem3D(
+            item=WeightedItem3D("L", 500, 1000, 500, 5, "X", allow_rotate=False),
+            x=0,
+            y=0,
+            z=0,
+            length=500,
+            width=1000,
+            height=500,
+            rotated=False,
+        )
+        base_right = WeightedPlacedItem3D(
+            item=WeightedItem3D("R", 500, 1000, 500, 5, "X", allow_rotate=False),
+            x=500,
+            y=0,
+            z=0,
+            length=500,
+            width=1000,
+            height=500,
+            rotated=False,
+        )
+        top = WeightedPlacedItem3D(
+            item=WeightedItem3D("TOP", 1000, 1000, 400, 5, "X", allow_rotate=False),
+            x=0,
+            y=0,
+            z=500,
+            length=1000,
+            width=1000,
+            height=400,
+            rotated=False,
+        )
+
+        placements = [base_left, base_right, top]
+
+        self.assertTrue(is_stably_supported(top, placements))
+        validate_stable_placements(placements)
+
+    def test_stability_rejects_center_over_gap_between_supporters(self) -> None:
+        base_left = WeightedPlacedItem3D(
+            item=WeightedItem3D("L", 400, 1000, 500, 5, "X", allow_rotate=False),
+            x=0,
+            y=0,
+            z=0,
+            length=400,
+            width=1000,
+            height=500,
+            rotated=False,
+        )
+        base_right = WeightedPlacedItem3D(
+            item=WeightedItem3D("R", 400, 1000, 500, 5, "X", allow_rotate=False),
+            x=600,
+            y=0,
+            z=0,
+            length=400,
+            width=1000,
+            height=500,
+            rotated=False,
+        )
+        top = WeightedPlacedItem3D(
+            item=WeightedItem3D("TOP", 1000, 1000, 400, 5, "X", allow_rotate=False),
+            x=0,
+            y=0,
+            z=500,
+            length=1000,
+            width=1000,
+            height=400,
+            rotated=False,
+        )
+
+        placements = [base_left, base_right, top]
+
+        self.assertFalse(is_stably_supported(top, placements))
+        with self.assertRaisesRegex(ValueError, "unstable placement: TOP"):
+            validate_stable_placements(placements)
+
     def test_realdata_weighted_packing_is_valid(self) -> None:
         items = build_step3_weighted_realdata_items()
         summary = pack_weighted_3d_by_destination_ffd(
@@ -81,6 +159,7 @@ class Step3WeightedThreeDimensionalPackingTests(unittest.TestCase):
         for bin_ in summary.bins:
             self.assertLessEqual(bin_.total_weight_kg, CONTAINER_20FT_MAX_PAYLOAD_KG)
             self.assertTrue(all(placement.item.dest == bin_.dest for placement in bin_.placements))
+            validate_stable_placements(bin_.placements)
             for placement in bin_.placements:
                 self.assertGreaterEqual(placement.x, 0)
                 self.assertGreaterEqual(placement.y, 0)
