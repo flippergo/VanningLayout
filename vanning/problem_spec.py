@@ -95,3 +95,24 @@ def build_step1_2d_realdata_items(allow_rotate: bool = True) -> list["Item2D"]:
             )
         )
     return items
+
+
+def build_step2_3d_realdata_items(allow_rotate: bool = True) -> list["Item3D"]:
+    """Build the real-data box set as Step2 3D items."""
+    from vanning.step2_3d import Item3D
+
+    items: list[Item3D] = []
+    for box_id in realdata_box_ids():
+        box_type = box_type_from_id(box_id)
+        length, width, height = BOX_DIMS[box_type]
+        items.append(
+            Item3D(
+                item_id=box_id,
+                length=float(length),
+                width=float(width),
+                height=float(height),
+                dest=destination_for_box_id(box_id),
+                allow_rotate=allow_rotate,
+            )
+        )
+    return items

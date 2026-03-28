@@ -1,0 +1,216 @@
+"""Step2: 3D packing with collision-free, inside-container placements."""
+
+from dataclasses import dataclass, field
+
+from vanning.geometry import BoxPlacement, Container, boxes_collide
+
+
+@dataclass(frozen=True)
+class Item3D:
+    """A single box to place in the 3D packing stage."""
+
+    item_id: str
+    length: float
+    width: float
+    height: float
+    dest: str
+    allow_rotate: bool = True
+
+    @property
+    def volume(self) -> float:
+        return self.length * self.width * self.height
+
+
+@dataclass(frozen=True)
+class PlacedItem3D:
+    """An Item3D placed at a concrete 3D position."""
+
+    item: Item3D
+    x: float
+    y: float
+    z: float
+    length: float
+    width: float
+    height: float
+    rotated: bool
+
+    @property
+    def box(self) -> BoxPlacement:
+        return BoxPlacement(
+            x=self.x,
+            y=self.y,
+            z=self.z,
+            l=self.length,
+            w=self.width,
+            h=self.height,
+        )
+
+
+@dataclass
+class Bin3D:
+    """A single container filled with items for one destination."""
+
+    container: Container
+    dest: str
+    placements: list[PlacedItem3D] = field(default_factory=list)
+
+    @property
+    def used_volume(self) -> float:
+        return sum(p.item.volume for p in self.placements)
+
+    @property
+    def remaining_volume(self) -> float:
+        return self.container.l * self.container.w * self.container.h - self.used_volume
+
+    def add(self, item: Item3D) -> bool:
+        if item.dest != self.dest:
+            return False
+        if item.length <= 0 or item.width <= 0 or item.height <= 0:
+            return False
+        if not item.dest:
+            return False
+
+        placement = self._find_best_placement(item)
+        if placement is None:
+            return False
+        self.placements.append(placement)
+        return True
+
+    def _find_best_placement(self, item: Item3D) -> PlacedItem3D | None:
+        best: PlacedItem3D | None = None
+        best_score: tuple[float, float, float, float, int] | None = None
+
+        for x, y, z in self._candidate_positions():
+            for length, width, rotated in _orientation_candidates(item):
+                candidate = PlacedItem3D(
+                    item=item,
+                    x=x,
+                    y=y,
+                    z=z,
+                    length=length,
+                    width=width,
+                    height=item.height,
+                    rotated=rotated,
+                )
+                if not self._is_valid(candidate):
+                    continue
+
+                score = (
+                    candidate.y,
+                    candidate.x,
+                    candidate.z,
+                    self.container.h - candidate.box.z_max,
+                    1 if candidate.rotated else 0,
+                )
+                if best_score is None or score < best_score:
+                    best_score = score
+                    best = candidate
+
+        return best
+
+    def _candidate_positions(self) -> list[tuple[float, float, float]]:
+        candidates: set[tuple[float, float, float]] = {(0.0, 0.0, 0.0)}
+        for placed in self.placements:
+            candidates.add((placed.box.x_max, placed.y, placed.z))
+            candidates.add((placed.x, placed.box.y_max, placed.z))
+            candidates.add((placed.x, placed.y, placed.box.z_max))
+
+        valid = [
+            (x, y, z)
+            for x, y, z in candidates
+            if 0 <= x <= self.container.l and 0 <= y <= self.container.w and 0 <= z <= self.container.h
+        ]
+        return sorted(valid, key=lambda candidate: (candidate[2], candidate[1], candidate[0]))
+
+    def _is_valid(self, placement: PlacedItem3D) -> bool:
+        box = placement.box
+        if box.x_max > self.container.l or box.y_max > self.container.w or box.z_max > self.container.h:
+            return False
+
+        for existing in self.placements:
+            if boxes_collide(box, existing.box):
+                return False
+
+        return self._is_supported(placement)
+
+    def _is_supported(self, placement: PlacedItem3D) -> bool:
+        if placement.z == 0:
+            return True
+
+        for existing in self.placements:
+            if existing.box.z_max != placement.z:
+                continue
+            if (
+                existing.x <= placement.x
+                and placement.box.x_max <= existing.box.x_max
+                and existing.y <= placement.y
+                and placement.box.y_max <= existing.box.y_max
+            ):
+                return True
+
+        return False
+
+
+@dataclass(frozen=True)
+class PackingSummary3D:
+    """A lightweight summary of a 3D packing result."""
+
+    bins: list[Bin3D]
+
+    @property
+    def bin_count(self) -> int:
+        return len(self.bins)
+
+
+def pack_3d_by_destination_ffd(items: list[Item3D], container: Container) -> PackingSummary3D:
+    """Pack items by destination with a simple first-fit-decreasing heuristic."""
+    if container.l <= 0 or container.w <= 0 or container.h <= 0:
+        raise ValueError("container dimensions must be positive")
+
+    for item in items:
+        if item.length <= 0 or item.width <= 0 or item.height <= 0:
+            raise ValueError(f"item dimensions must be positive: {item.item_id}")
+        if not item.dest:
+            raise ValueError(f"item.dest must be non-empty: {item.item_id}")
+
+        fits_without_rotation = (
+            item.length <= container.l and item.width <= container.w and item.height <= container.h
+        )
+        fits_with_rotation = (
+            item.allow_rotate
+            and item.width <= container.l
+            and item.length <= container.w
+            and item.height <= container.h
+        )
+        if not (fits_without_rotation or fits_with_rotation):
+            raise ValueError(f"item cannot fit in any bin: {item.item_id}")
+
+    ordered = sorted(
+        items,
+        key=lambda item: (item.dest, -item.volume, -max(item.length, item.width), item.item_id),
+    )
+    bins: list[Bin3D] = []
+
+    for item in ordered:
+        placed = False
+        for bin_ in bins:
+            if bin_.dest != item.dest:
+                continue
+            if bin_.add(item):
+                placed = True
+                break
+
+        if not placed:
+            new_bin = Bin3D(container=container, dest=item.dest)
+            if not new_bin.add(item):
+                raise ValueError(f"item cannot fit in any bin: {item.item_id}")
+            bins.append(new_bin)
+
+    return PackingSummary3D(bins=bins)
+
+
+def _orientation_candidates(item: Item3D) -> list[tuple[float, float, bool]]:
+    candidates = [(item.length, item.width, False)]
+    if item.allow_rotate and item.length != item.width:
+        candidates.append((item.width, item.length, True))
+    return candidates
