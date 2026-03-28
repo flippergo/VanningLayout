@@ -27,13 +27,10 @@ Step3 では、Step2 の 3D 配置に対して、重量上限と積み上げ安�
 
 ![Step3 weighted isometric bin1](step3_weighted_3d_example_isometric_bin01.svg)
 
-### 例題2: 本番データ対応例
+### 本番データの全 bin
 
-本番データの代表として、bin 01 の図も並べます。
-
-![Step3 weighted realdata example](step3_weighted_3d_example_bin02.svg)
-
-![Step3 weighted realdata isometric example](step3_weighted_3d_example_isometric_bin02.svg)
+本番データについては、代表例 1 個ではなく全 bin の図を説明レポート側に並べます。  
+見る人が `bin 01` から `bin 04` までを選んで確認できるようにしています。
 
 ## 説明レポートの生成
 

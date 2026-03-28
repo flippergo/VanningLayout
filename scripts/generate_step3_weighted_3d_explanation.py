@@ -58,6 +58,34 @@ def _bin_summary_lines(summary: WeightedPackingSummary3D) -> str:
     return "\n".join(lines)
 
 
+def _all_realdata_bin_sections(
+    summary: WeightedPackingSummary3D,
+    orthographic_paths: list[Path],
+    isometric_paths: list[Path],
+) -> str:
+    sections: list[str] = []
+    for idx, (bin_, ortho_path, iso_path) in enumerate(
+        zip(summary.bins, orthographic_paths, isometric_paths, strict=True),
+        start=1,
+    ):
+        sections.append(
+            "\n".join(
+                [
+                    f"### Bin {idx:02d}",
+                    "",
+                    f"- 行先: `{bin_.dest}`",
+                    f"- 箱数: `{len(bin_.placements)}`",
+                    f"- 重量: `{bin_.total_weight_kg:.0f}/{bin_.max_weight_kg:.0f}kg`",
+                    "",
+                    f"![realdata-bin-{idx:02d}]({ortho_path.as_posix()})",
+                    "",
+                    f"![realdata-bin-{idx:02d}-iso]({iso_path.as_posix()})",
+                ]
+            )
+        )
+    return "\n\n".join(sections)
+
+
 def _write_markdown_report(
     report_path: Path,
     *,
@@ -113,15 +141,6 @@ Step3 ではこの Step2 の積み上げに対して、重量上限と支持安�
 
 {_placement_table(example_summary)}
 
-## 例題2: 本番データ対応例
-
-本番データの bin 01 を、そのまま「代表例」として載せます。
-小問題で見た 3 面図と立体図が、本番サイズではどう見えるかを対応づけるためです。
-
-![realdata-example]({realdata_svgs[0].as_posix()})
-
-![realdata-example-iso]({realdata_isometric_svgs[0].as_posix()})
-
 ## 本番データの結果
 
 - 箱数: `80`
@@ -141,6 +160,12 @@ Step3 ではこの Step2 の積み上げに対して、重量上限と支持安�
 ### 本番データの立体図ファイル
 
 {chr(10).join(f"- `{path.as_posix()}`" for path in realdata_isometric_svgs)}
+
+## 本番データの全 bin 図
+
+見る人が bin を選べるように、全コンテナの図を並べています。
+
+{_all_realdata_bin_sections(realdata_summary, realdata_svgs, realdata_isometric_svgs)}
 
 ## 読み方
 
