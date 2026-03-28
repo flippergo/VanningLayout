@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="604" height="672" viewBox="0 0 604 672">
+<rect x="0" y="0" width="100%" height="100%" fill="#F8F9FB"/>
+<text x="32" y="38" font-size="18" font-family="Segoe UI, sans-serif" fill="#1F2937">Example: stacking keeps one bin</text>
+<line x1="302.20" y1="274.00" x2="572.40" y2="430.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="302.20" y1="274.00" x2="32.00" y2="430.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="302.20" y1="274.00" x2="302.20" y2="66.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="572.40" y1="430.00" x2="302.20" y2="586.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="572.40" y1="430.00" x2="572.40" y2="222.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="32.00" y1="430.00" x2="302.20" y2="586.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="32.00" y1="430.00" x2="32.00" y2="222.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="302.20" y1="586.00" x2="302.20" y2="378.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="302.20" y1="66.00" x2="572.40" y2="222.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="302.20" y1="66.00" x2="32.00" y2="222.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="572.40" y1="222.00" x2="302.20" y2="378.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<line x1="32.00" y1="222.00" x2="302.20" y2="378.00" stroke="#CBD5E1" stroke-width="1.5"/>
+<polygon points="302.20,274.00 122.07,378.00 122.07,274.00 302.20,170.00" fill="#498441" stroke="#111827" stroke-width="1"/>
+<polygon points="302.20,274.00 572.40,430.00 572.40,326.00 302.20,170.00" fill="#54974A" stroke="#111827" stroke-width="1"/>
+<polygon points="302.20,170.00 572.40,326.00 392.27,430.00 122.07,274.00" fill="#62B157" stroke="#111827" stroke-width="1"/>
+<text x="347.23" y="300.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">C</text>
+<polygon points="302.20,170.00 212.13,222.00 212.13,118.00 302.20,66.00" fill="#C67423" stroke="#111827" stroke-width="1"/>
+<polygon points="302.20,170.00 572.40,326.00 572.40,222.00 302.20,66.00" fill="#E38528" stroke="#111827" stroke-width="1"/>
+<polygon points="302.20,66.00 572.40,222.00 482.33,274.00 212.13,118.00" fill="#FF9C2F" stroke="#111827" stroke-width="1"/>
+<text x="392.27" y="170.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">B</text>
+<polygon points="122.07,378.00 32.00,430.00 32.00,222.00 122.07,170.00" fill="#406389" stroke="#111827" stroke-width="1"/>
+<polygon points="122.07,378.00 212.13,430.00 212.13,222.00 122.07,170.00" fill="#49729D" stroke="#111827" stroke-width="1"/>
+<polygon points="122.07,170.00 212.13,222.00 122.07,274.00 32.00,222.00" fill="#5685B8" stroke="#111827" stroke-width="1"/>
+<text x="122.07" y="222.00" text-anchor="middle" dominant-baseline="middle" font-size="10" font-family="Consolas, monospace" fill="#111827">A</text>
+<text x="32" y="622" font-size="13" font-family="Segoe UI, sans-serif" fill="#374151">Dest: X  Items: 3  Volume utilization: 61.1%</text>
+<text x="32" y="640" font-size="12" font-family="Consolas, monospace" fill="#6B7280">L=3mm W=3mm H=2mm</text>
+</svg>

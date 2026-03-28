@@ -15,7 +15,7 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
         summary = pack_3d_by_destination_ffd(items, CONTAINER_20FT)
 
         for bin_ in summary.bins:
-            self.assertTrue(all(p.item.dest == bin_.dest for p in bin_.placements))
+            self.assertTrue(all(placement.item.dest == bin_.dest for placement in bin_.placements))
 
     def test_placements_are_inside_and_non_overlapping(self) -> None:
         items = [
@@ -28,20 +28,19 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
 
         self.assertEqual(summary.bin_count, 1)
         placements = summary.bins[0].placements
-        for p in placements:
-            self.assertGreaterEqual(p.x, 0)
-            self.assertGreaterEqual(p.y, 0)
-            self.assertGreaterEqual(p.z, 0)
-            self.assertLessEqual(p.box.x_max, CONTAINER_20FT.l)
-            self.assertLessEqual(p.box.y_max, CONTAINER_20FT.w)
-            self.assertLessEqual(p.box.z_max, CONTAINER_20FT.h)
+        for placement in placements:
+            self.assertGreaterEqual(placement.x, 0)
+            self.assertGreaterEqual(placement.y, 0)
+            self.assertGreaterEqual(placement.z, 0)
+            self.assertLessEqual(placement.box.x_max, CONTAINER_20FT.l)
+            self.assertLessEqual(placement.box.y_max, CONTAINER_20FT.w)
+            self.assertLessEqual(placement.box.z_max, CONTAINER_20FT.h)
 
         for i in range(len(placements)):
             for j in range(i + 1, len(placements)):
                 self.assertFalse(boxes_collide(placements[i].box, placements[j].box))
 
     def test_stacking_support_rule(self) -> None:
-        # 床面が狭いコンテナを使い、必ず積み上げが発生するケースを作る。
         small_container = type(CONTAINER_20FT)(l=1200, w=900, h=1400)
         items = [
             Item3D("B1", length=1200, width=900, height=700, dest="X"),
@@ -50,21 +49,21 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
         summary = pack_3d_by_destination_ffd(items, small_container)
         placements = summary.bins[0].placements
 
-        self.assertTrue(any(p.z > 0 for p in placements))
-        for p in placements:
-            if p.z == 0:
+        self.assertTrue(any(placement.z > 0 for placement in placements))
+        for placement in placements:
+            if placement.z == 0:
                 continue
             supporters = [
                 other
                 for other in placements
-                if other is not p
-                and other.box.z_max == p.z
-                and other.x <= p.x
-                and p.box.x_max <= other.box.x_max
-                and other.y <= p.y
-                and p.box.y_max <= other.box.y_max
+                if other is not placement
+                and other.box.z_max == placement.z
+                and other.x <= placement.x
+                and placement.box.x_max <= other.box.x_max
+                and other.y <= placement.y
+                and placement.box.y_max <= other.box.y_max
             ]
-            self.assertTrue(supporters, msg=f"{p.item.item_id} at z={p.z} is unsupported")
+            self.assertTrue(supporters, msg=f"{placement.item.item_id} at z={placement.z} is unsupported")
 
     def test_rejects_bridging_across_two_support_boxes(self) -> None:
         bridge_container = type(CONTAINER_20FT)(l=1200, w=900, h=1500)
@@ -72,8 +71,6 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
 
         self.assertTrue(bin_.add(Item3D("L", length=600, width=900, height=700, dest="X", allow_rotate=False)))
         self.assertTrue(bin_.add(Item3D("R", length=600, width=900, height=700, dest="X", allow_rotate=False)))
-
-        # 2つの支持箱をまたぐ bridging 配置は不許可。
         self.assertFalse(
             bin_.add(Item3D("TOP", length=1200, width=900, height=700, dest="X", allow_rotate=False))
         )
@@ -85,8 +82,6 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
         self.assertTrue(
             bin_.add(Item3D("BASE", length=800, width=900, height=700, dest="X", allow_rotate=False))
         )
-
-        # 支持箱より上箱の底面が大きい overhang 配置は不許可。
         self.assertFalse(
             bin_.add(Item3D("TOP", length=900, width=900, height=700, dest="X", allow_rotate=False))
         )
@@ -120,7 +115,7 @@ class Step2ThreeDimensionalPackingTests(unittest.TestCase):
         self.assertEqual(sum(len(bin_.placements) for bin_ in summary.bins), len(items))
 
         for bin_ in summary.bins:
-            self.assertTrue(all(p.item.dest == bin_.dest for p in bin_.placements))
+            self.assertTrue(all(placement.item.dest == bin_.dest for placement in bin_.placements))
             for i in range(len(bin_.placements)):
                 for j in range(i + 1, len(bin_.placements)):
                     self.assertFalse(boxes_collide(bin_.placements[i].box, bin_.placements[j].box))

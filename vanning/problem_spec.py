@@ -98,7 +98,7 @@ def build_step1_2d_realdata_items(allow_rotate: bool = True) -> list["Item2D"]:
 
 
 def build_step2_3d_realdata_items(allow_rotate: bool = True) -> list["Item3D"]:
-    """Step2-3D 用に、本番データ80箱を Item3D の配列へ変換する。"""
+    """Build the real-data box set as Step2 3D items."""
     from vanning.step2_3d import Item3D
 
     items: list[Item3D] = []

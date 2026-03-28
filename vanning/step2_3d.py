@@ -1,4 +1,4 @@
-"""Step2: 重さ・重心なしの 3D パッキング。"""
+"""Step2: 3D packing with collision-free, inside-container placements."""
 
 from dataclasses import dataclass, field
 
@@ -7,7 +7,7 @@ from vanning.geometry import BoxPlacement, Container, boxes_collide
 
 @dataclass(frozen=True)
 class Item3D:
-    """3D パッキング対象の箱。"""
+    """A single box to place in the 3D packing stage."""
 
     item_id: str
     length: float
@@ -23,7 +23,7 @@ class Item3D:
 
 @dataclass(frozen=True)
 class PlacedItem3D:
-    """3D で配置済みの箱。"""
+    """An Item3D placed at a concrete 3D position."""
 
     item: Item3D
     x: float
@@ -48,7 +48,7 @@ class PlacedItem3D:
 
 @dataclass
 class Bin3D:
-    """1コンテナ分の 3D パッキング状態。"""
+    """A single container filled with items for one destination."""
 
     container: Container
     dest: str
@@ -110,17 +110,17 @@ class Bin3D:
 
     def _candidate_positions(self) -> list[tuple[float, float, float]]:
         candidates: set[tuple[float, float, float]] = {(0.0, 0.0, 0.0)}
-        for p in self.placements:
-            candidates.add((p.box.x_max, p.y, p.z))
-            candidates.add((p.x, p.box.y_max, p.z))
-            candidates.add((p.x, p.y, p.box.z_max))
+        for placed in self.placements:
+            candidates.add((placed.box.x_max, placed.y, placed.z))
+            candidates.add((placed.x, placed.box.y_max, placed.z))
+            candidates.add((placed.x, placed.y, placed.box.z_max))
 
         valid = [
             (x, y, z)
             for x, y, z in candidates
             if 0 <= x <= self.container.l and 0 <= y <= self.container.w and 0 <= z <= self.container.h
         ]
-        return sorted(valid, key=lambda c: (c[2], c[1], c[0]))
+        return sorted(valid, key=lambda candidate: (candidate[2], candidate[1], candidate[0]))
 
     def _is_valid(self, placement: PlacedItem3D) -> bool:
         box = placement.box
@@ -153,7 +153,7 @@ class Bin3D:
 
 @dataclass(frozen=True)
 class PackingSummary3D:
-    """3D パッキング結果の要約。"""
+    """A lightweight summary of a 3D packing result."""
 
     bins: list[Bin3D]
 
@@ -163,7 +163,7 @@ class PackingSummary3D:
 
 
 def pack_3d_by_destination_ffd(items: list[Item3D], container: Container) -> PackingSummary3D:
-    """行先ごとの First-Fit Decreasing で 3D パッキングを実行する。"""
+    """Pack items by destination with a simple first-fit-decreasing heuristic."""
     if container.l <= 0 or container.w <= 0 or container.h <= 0:
         raise ValueError("container dimensions must be positive")
 
@@ -185,7 +185,10 @@ def pack_3d_by_destination_ffd(items: list[Item3D], container: Container) -> Pac
         if not (fits_without_rotation or fits_with_rotation):
             raise ValueError(f"item cannot fit in any bin: {item.item_id}")
 
-    ordered = sorted(items, key=lambda i: (i.dest, -i.volume, -max(i.length, i.width), i.item_id))
+    ordered = sorted(
+        items,
+        key=lambda item: (item.dest, -item.volume, -max(item.length, item.width), item.item_id),
+    )
     bins: list[Bin3D] = []
 
     for item in ordered:
@@ -198,10 +201,10 @@ def pack_3d_by_destination_ffd(items: list[Item3D], container: Container) -> Pac
                 break
 
         if not placed:
-            bin_ = Bin3D(container=container, dest=item.dest)
-            if not bin_.add(item):
+            new_bin = Bin3D(container=container, dest=item.dest)
+            if not new_bin.add(item):
                 raise ValueError(f"item cannot fit in any bin: {item.item_id}")
-            bins.append(bin_)
+            bins.append(new_bin)
 
     return PackingSummary3D(bins=bins)
 
@@ -211,7 +214,3 @@ def _orientation_candidates(item: Item3D) -> list[tuple[float, float, bool]]:
     if item.allow_rotate and item.length != item.width:
         candidates.append((item.width, item.length, True))
     return candidates
-
-
-def _strict_overlap_len(a_min: float, a_max: float, b_min: float, b_max: float) -> float:
-    return min(a_max, b_max) - max(a_min, b_min)
