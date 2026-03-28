@@ -206,6 +206,9 @@ def pack_weighted_3d_by_destination_ffd(
     items: list[WeightedItem3D], container: Container, max_weight_kg: float
 ) -> WeightedPackingSummary3D:
     """Apply Step3 weight assignment, then pack each assigned bin with Step2 3D placement."""
+    if container.l <= 0 or container.w <= 0 or container.h <= 0:
+        raise ValueError("container dimensions must be positive")
+
     allocations = assign_by_destination_and_weight_ffd(items, max_weight_kg)
     packed_bins: list[WeightedPackedBin3D] = []
 

@@ -54,6 +54,12 @@ class Step3WeightedThreeDimensionalPackingTests(unittest.TestCase):
         for bin_ in summary.bins:
             self.assertLessEqual(bin_.total_weight_kg, 12)
 
+    def test_weighted_packing_rejects_non_positive_container_dimensions_even_when_empty(self) -> None:
+        invalid_container = type(CONTAINER_20FT)(l=0, w=2000, h=2000)
+
+        with self.assertRaisesRegex(ValueError, "container dimensions must be positive"):
+            pack_weighted_3d_by_destination_ffd([], invalid_container, max_weight_kg=12)
+
     def test_duplicate_item_ids_preserve_individual_weights(self) -> None:
         roomy_container = type(CONTAINER_20FT)(l=4000, w=2000, h=2000)
         items = [
