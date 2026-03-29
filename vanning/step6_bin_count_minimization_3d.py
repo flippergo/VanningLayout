@@ -2,7 +2,6 @@
 
 from collections import defaultdict
 from dataclasses import dataclass
-from math import ceil
 
 from vanning.geometry import Container
 from vanning.problem_spec import STEP5_MIN_SUPPORT_AREA_RATIO
@@ -93,7 +92,7 @@ def _minimize_destination_bins(
 ) -> list[CenterBalancedBin3D]:
     current_bins = list(bins)
     current_items = [placement.item for bin_ in current_bins for placement in bin_.placements]
-    min_possible_bin_count = ceil(sum(item.weight_kg for item in current_items) / max_weight_kg)
+    min_possible_bin_count = _minimum_required_bin_count(current_items, max_weight_kg)
 
     while len(current_bins) > min_possible_bin_count:
         current_items = [placement.item for bin_ in current_bins for placement in bin_.placements]
@@ -214,3 +213,16 @@ def _try_pack_items_into_bin_count(
         bin_items=[[] for _ in range(target_bin_count)],
         bin_weights=[0.0 for _ in range(target_bin_count)],
     )
+
+
+def _minimum_required_bin_count(items: list[WeightedItem3D], max_weight_kg: float) -> int:
+    if not items:
+        return 0
+    if max_weight_kg <= 0:
+        raise ValueError("max_weight_kg must be positive")
+
+    total_weight_kg = sum(item.weight_kg for item in items)
+    required_bin_count = max(1, int(total_weight_kg / max_weight_kg))
+    while _exceeds_weight_limit(total_weight_kg, required_bin_count * max_weight_kg):
+        required_bin_count += 1
+    return required_bin_count

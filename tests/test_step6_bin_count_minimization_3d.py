@@ -14,6 +14,7 @@ from vanning.step5_realistic_stability_3d import (
     validate_realistic_stability,
 )
 from vanning.step6_bin_count_minimization_3d import (
+    _minimum_required_bin_count,
     _try_pack_items_into_bin_count,
     pack_min_bin_count_3d_by_destination,
 )
@@ -174,6 +175,16 @@ class Step6BinCountMinimizationTests(unittest.TestCase):
         self.assertEqual(len(packed_bins), 2)
         for bin_ in packed_bins:
             self.assertLessEqual(bin_.total_weight_kg, 0.82 + 1e-9)
+
+    def test_weight_lower_bound_tolerates_decimal_rounding(self) -> None:
+        items = [
+            WeightedItem3D("A", 400, 400, 400, 0.31, "X", allow_rotate=False),
+            WeightedItem3D("B", 400, 400, 400, 0.51, "X", allow_rotate=False),
+            WeightedItem3D("C", 400, 400, 400, 0.31, "X", allow_rotate=False),
+            WeightedItem3D("D", 400, 400, 400, 0.51, "X", allow_rotate=False),
+        ]
+
+        self.assertEqual(_minimum_required_bin_count(items, max_weight_kg=0.82), 2)
 
     def test_realdata_packing_is_valid_and_not_worse_than_step5(self) -> None:
         items = build_step3_weighted_realdata_items()
