@@ -257,6 +257,57 @@ def pack_realistic_stable_3d_by_destination_ffd(
     return summary
 
 
+def pack_single_realistic_stable_bin(
+    items: list[WeightedItem3D],
+    container: Container,
+    max_weight_kg: float,
+    max_center_offset_mm: float,
+    min_support_area_ratio: float = STEP5_MIN_SUPPORT_AREA_RATIO,
+) -> CenterBalancedBin3D | None:
+    """Try to pack one destination-specific item set into a single centered bin."""
+    if not items:
+        raise ValueError("items must be non-empty")
+    if container.l <= 0 or container.w <= 0 or container.h <= 0:
+        raise ValueError("container dimensions must be positive")
+    if max_weight_kg <= 0:
+        raise ValueError("max_weight_kg must be positive")
+    if max_center_offset_mm < 0:
+        raise ValueError("max_center_offset_mm must be non-negative")
+    if not 0 < min_support_area_ratio <= 1:
+        raise ValueError("min_support_area_ratio must be in (0, 1]")
+
+    dest = items[0].dest
+    bin_ = _StableWeightedBin3D(
+        container=container,
+        dest=dest,
+        max_weight_kg=max_weight_kg,
+        min_support_area_ratio=min_support_area_ratio,
+    )
+
+    ordered = sorted(items, key=lambda item: (-item.volume, -max(item.length, item.width), item.item_id))
+    for item in ordered:
+        if item.dest != dest:
+            raise ValueError("all items must have the same destination")
+        _validate_item_can_fit(item, container)
+        if not bin_.add(item):
+            return None
+
+    packed_bin = WeightedPackedBin3D(
+        container=container,
+        dest=dest,
+        max_weight_kg=max_weight_kg,
+        placements=bin_.placements.copy(),
+    )
+    centered_bin = translate_bin_toward_center(packed_bin, max_center_offset_mm)
+    validate_realistic_stability(
+        centered_bin.placements,
+        min_support_area_ratio=min_support_area_ratio,
+    )
+    if not centered_bin.satisfies_center_constraint:
+        return None
+    return centered_bin
+
+
 def _pack_allocation_bin(
     items: list[WeightedItem3D],
     container: Container,
