@@ -195,9 +195,6 @@ def _try_pack_items_into_bin_count(
                 continue
 
             trial_bucket = bin_items[bucket_index] + [item]
-            if pack_items(trial_bucket) is None:
-                continue
-
             bin_items[bucket_index] = trial_bucket
             bin_weights[bucket_index] += item.weight_kg
             result = search(item_index + 1, bin_items, bin_weights)

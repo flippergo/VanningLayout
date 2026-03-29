@@ -13,7 +13,10 @@ from vanning.step5_realistic_stability_3d import (
     pack_realistic_stable_3d_by_destination_ffd,
     validate_realistic_stability,
 )
-from vanning.step6_bin_count_minimization_3d import pack_min_bin_count_3d_by_destination
+from vanning.step6_bin_count_minimization_3d import (
+    _try_pack_items_into_bin_count,
+    pack_min_bin_count_3d_by_destination,
+)
 
 
 class Step6BinCountMinimizationTests(unittest.TestCase):
@@ -106,6 +109,48 @@ class Step6BinCountMinimizationTests(unittest.TestCase):
 
         self.assertEqual(step6_summary.initial_bin_count, 2)
         self.assertEqual(step6_summary.bin_count, 2)
+
+    def test_search_does_not_prune_partial_bucket_that_becomes_packable_later(self) -> None:
+        roomy_container = type(CONTAINER_20FT)(l=2000, w=2000, h=2000)
+        items = [
+            WeightedItem3D("0", 400, 400, 400, 6, "X", allow_rotate=False),
+            WeightedItem3D("1", 400, 400, 400, 4, "X", allow_rotate=False),
+            WeightedItem3D("2", 400, 400, 400, 3, "X", allow_rotate=False),
+            WeightedItem3D("3", 400, 400, 400, 3, "X", allow_rotate=False),
+            WeightedItem3D("4", 400, 400, 400, 2, "X", allow_rotate=False),
+            WeightedItem3D("5", 400, 400, 400, 2, "X", allow_rotate=False),
+        ]
+
+        original_helper = (
+            "vanning.step6_bin_count_minimization_3d.pack_single_realistic_stable_bin"
+        )
+
+        valid_partitions = {
+            frozenset({"0", "1"}),
+            frozenset({"2", "3", "4", "5"}),
+        }
+
+        def non_monotonic_helper(*args, **kwargs):
+            bin_items = args[0]
+            key = frozenset(item.item_id for item in bin_items)
+            if key in valid_partitions:
+                return object()
+            if key == frozenset({"2"}):
+                return None
+            return None
+
+        with patch(original_helper, side_effect=non_monotonic_helper):
+            packed_bins = _try_pack_items_into_bin_count(
+                items,
+                target_bin_count=2,
+                container=roomy_container,
+                max_weight_kg=10,
+                max_center_offset_mm=1000,
+                min_support_area_ratio=STEP5_MIN_SUPPORT_AREA_RATIO,
+            )
+
+        self.assertIsNotNone(packed_bins)
+        self.assertEqual(len(packed_bins), 2)
 
     def test_realdata_packing_is_valid_and_not_worse_than_step5(self) -> None:
         items = build_step3_weighted_realdata_items()
