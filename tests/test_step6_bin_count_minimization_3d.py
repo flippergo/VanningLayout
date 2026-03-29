@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from vanning.problem_spec import (
     CONTAINER_20FT,
@@ -69,6 +70,39 @@ class Step6BinCountMinimizationTests(unittest.TestCase):
             max_center_offset_mm=1000,
             min_support_area_ratio=STEP5_MIN_SUPPORT_AREA_RATIO,
         )
+
+        self.assertEqual(step6_summary.initial_bin_count, 2)
+        self.assertEqual(step6_summary.bin_count, 2)
+
+    def test_trial_pack_value_error_is_treated_as_infeasible_branch(self) -> None:
+        roomy_container = type(CONTAINER_20FT)(l=2000, w=2000, h=2000)
+        items = [
+            WeightedItem3D("A", 400, 400, 400, 6, "X", allow_rotate=False),
+            WeightedItem3D("B", 400, 400, 400, 4, "X", allow_rotate=False),
+            WeightedItem3D("C", 400, 400, 400, 6, "X", allow_rotate=False),
+            WeightedItem3D("D", 400, 400, 400, 4, "X", allow_rotate=False),
+        ]
+
+        original_helper = (
+            "vanning.step6_bin_count_minimization_3d.pack_single_realistic_stable_bin"
+        )
+
+        from vanning.step6_bin_count_minimization_3d import pack_single_realistic_stable_bin as real_helper
+
+        def flaky_helper(*args, **kwargs):
+            bin_items = args[0]
+            if len(bin_items) == 2 and sum(item.weight_kg for item in bin_items) == 10:
+                raise ValueError("synthetic trial-pack failure")
+            return real_helper(*args, **kwargs)
+
+        with patch(original_helper, side_effect=flaky_helper):
+            step6_summary = pack_min_bin_count_3d_by_destination(
+                items,
+                roomy_container,
+                max_weight_kg=10,
+                max_center_offset_mm=1000,
+                min_support_area_ratio=STEP5_MIN_SUPPORT_AREA_RATIO,
+            )
 
         self.assertEqual(step6_summary.initial_bin_count, 2)
         self.assertEqual(step6_summary.bin_count, 2)

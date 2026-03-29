@@ -146,13 +146,16 @@ def _try_pack_items_into_bin_count(
     def pack_items(bin_items: list[WeightedItem3D]) -> CenterBalancedBin3D | None:
         key = tuple(sorted(item_key_by_identity[id(item)] for item in bin_items))
         if key not in pack_cache:
-            pack_cache[key] = pack_single_realistic_stable_bin(
-                bin_items,
-                container=container,
-                max_weight_kg=max_weight_kg,
-                max_center_offset_mm=max_center_offset_mm,
-                min_support_area_ratio=min_support_area_ratio,
-            )
+            try:
+                pack_cache[key] = pack_single_realistic_stable_bin(
+                    bin_items,
+                    container=container,
+                    max_weight_kg=max_weight_kg,
+                    max_center_offset_mm=max_center_offset_mm,
+                    min_support_area_ratio=min_support_area_ratio,
+                )
+            except ValueError:
+                pack_cache[key] = None
         return pack_cache[key]
 
     def search(
