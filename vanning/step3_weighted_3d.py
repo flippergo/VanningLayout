@@ -1,9 +1,13 @@
 """Step3: weight-constrained 3D packing built on top of Step2 placement."""
 
 from dataclasses import dataclass, field
+from math import isclose
 
 from vanning.geometry import BoxPlacement, Container
 from vanning.step2_3d import Item3D, pack_3d_by_destination_ffd
+
+
+WEIGHT_COMPARISON_ABS_TOLERANCE_KG = 1e-9
 
 
 @dataclass(frozen=True)
@@ -77,7 +81,7 @@ class WeightAllocationBin:
     def add(self, item: WeightedItem3D) -> bool:
         if item.dest != self.dest:
             return False
-        if item.weight_kg <= 0 or item.weight_kg > self.remaining_weight_kg:
+        if item.weight_kg <= 0 or _exceeds_weight_limit(item.weight_kg, self.remaining_weight_kg):
             return False
         self.items.append(item)
         return True
@@ -173,7 +177,7 @@ def assign_by_destination_and_weight_ffd(
             raise ValueError(f"item dimensions must be positive: {item.item_id}")
         if item.weight_kg <= 0:
             raise ValueError(f"item weight must be positive: {item.item_id}")
-        if item.weight_kg > max_weight_kg:
+        if _exceeds_weight_limit(item.weight_kg, max_weight_kg):
             raise ValueError(f"item exceeds max_weight_kg: {item.item_id}")
         if not item.dest:
             raise ValueError(f"item.dest must be non-empty: {item.item_id}")
@@ -245,3 +249,12 @@ def pack_weighted_3d_by_destination_ffd(
             )
 
     return WeightedPackingSummary3D(bins=packed_bins)
+
+
+def _exceeds_weight_limit(weight_kg: float, limit_kg: float) -> bool:
+    return weight_kg > limit_kg and not isclose(
+        weight_kg,
+        limit_kg,
+        rel_tol=0.0,
+        abs_tol=WEIGHT_COMPARISON_ABS_TOLERANCE_KG,
+    )
