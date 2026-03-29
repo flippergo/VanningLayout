@@ -6,7 +6,7 @@ from math import ceil
 
 from vanning.geometry import Container
 from vanning.problem_spec import STEP5_MIN_SUPPORT_AREA_RATIO
-from vanning.step3_weighted_3d import WeightedItem3D
+from vanning.step3_weighted_3d import WeightedItem3D, _exceeds_weight_limit
 from vanning.step4_center_of_gravity_3d import CenterBalancedBin3D
 from vanning.step5_realistic_stability_3d import (
     pack_realistic_stable_3d_by_destination_ffd,
@@ -191,7 +191,7 @@ def _try_pack_items_into_bin_count(
                 continue
             seen_bucket_signatures.add(bucket_signature)
 
-            if bin_weights[bucket_index] + item.weight_kg > max_weight_kg:
+            if _exceeds_weight_limit(bin_weights[bucket_index] + item.weight_kg, max_weight_kg):
                 continue
 
             trial_bucket = bin_items[bucket_index] + [item]

@@ -8,6 +8,7 @@ from vanning.step3_weighted_3d import (
     WeightedItem3D,
     WeightedPackedBin3D,
     WeightedPlacedItem3D,
+    _exceeds_weight_limit,
     assign_by_destination_and_weight_ffd,
 )
 from vanning.step4_center_of_gravity_3d import CenterBalancedBin3D, translate_bin_toward_center
@@ -145,7 +146,7 @@ class _StableWeightedBin3D:
             return False
         if item.length <= 0 or item.width <= 0 or item.height <= 0:
             return False
-        if item.weight_kg <= 0 or item.weight_kg > self.remaining_weight_kg:
+        if item.weight_kg <= 0 or _exceeds_weight_limit(item.weight_kg, self.remaining_weight_kg):
             return False
 
         placement = self._find_best_placement(item)

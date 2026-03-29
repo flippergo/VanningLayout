@@ -152,6 +152,29 @@ class Step6BinCountMinimizationTests(unittest.TestCase):
         self.assertIsNotNone(packed_bins)
         self.assertEqual(len(packed_bins), 2)
 
+    def test_search_accepts_decimal_weights_on_capacity_boundary(self) -> None:
+        roomy_container = type(CONTAINER_20FT)(l=2000, w=2000, h=2000)
+        items = [
+            WeightedItem3D("A", 400, 400, 400, 0.31, "X", allow_rotate=False),
+            WeightedItem3D("B", 400, 400, 400, 0.51, "X", allow_rotate=False),
+            WeightedItem3D("C", 400, 400, 400, 0.31, "X", allow_rotate=False),
+            WeightedItem3D("D", 400, 400, 400, 0.51, "X", allow_rotate=False),
+        ]
+
+        packed_bins = _try_pack_items_into_bin_count(
+            items,
+            target_bin_count=2,
+            container=roomy_container,
+            max_weight_kg=0.82,
+            max_center_offset_mm=1000,
+            min_support_area_ratio=STEP5_MIN_SUPPORT_AREA_RATIO,
+        )
+
+        self.assertIsNotNone(packed_bins)
+        self.assertEqual(len(packed_bins), 2)
+        for bin_ in packed_bins:
+            self.assertLessEqual(bin_.total_weight_kg, 0.82 + 1e-9)
+
     def test_realdata_packing_is_valid_and_not_worse_than_step5(self) -> None:
         items = build_step3_weighted_realdata_items()
         step5_summary = pack_realistic_stable_3d_by_destination_ffd(
