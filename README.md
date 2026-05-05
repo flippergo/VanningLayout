@@ -1,5 +1,34 @@
 # VanningLayout
 
+## MCP server
+
+This repository includes a FastMCP stdio server that exposes the Step6
+near-minimum-bin 3D packing solver as an AI tool.
+
+Registered tool:
+
+- `pack_vanning_layout`
+
+The tool accepts JSON-like item and container data, runs
+`pack_min_bin_count_3d_by_destination`, and returns JSON-serializable container
+counts, bin summaries, center-of-gravity data, and item placements.
+
+Install the MCP dependency:
+
+```powershell
+pip install -r requirements-mcp.txt
+```
+
+Run the MCP server over stdio:
+
+```powershell
+python -m vanning.mcp_server
+```
+
+For the detailed input/output format and Codex MCP configuration example, see
+[docs/mcp_server.md](docs/mcp_server.md). The dependency list is
+[requirements-mcp.txt](requirements-mcp.txt).
+
 20ft コンテナ向けのバンニングレイアウト最適化コードです。  
 現時点では Step1 から Step6 まで段階的に実装されており、Step6 では
 
